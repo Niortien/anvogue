@@ -1,0 +1,153 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  // output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+model Audit {
+  id String @id() @default(uuid()) @db.Uuid @map("audit_id")
+  utilisateur_id String
+  table String 
+  table_id String
+  message String
+}
+
+model Categorie{
+  id String @id() @default(uuid()) @db.Uuid @map("categorie_id")
+  reference String
+  nom String
+  description String
+}
+ model Collection{
+  id String @id() @default(uuid()) @db.Uuid @map("collection_id")
+  reference String
+  nom String
+  description String
+ }
+model Otp{
+  id String @id() @default(ulid()) @db.Uuid()
+  code String
+  expire String
+  email String
+  counter Int
+}
+
+model Variete{
+  id String @id() @default(ulid()) @db.Uuid() @map("variete_id")
+  reference String
+  couleur String
+  prix Decimal 
+  estEnPromotion Boolean
+  prixPromotion Decimal
+  image String[]
+  article_id String 
+
+}
+
+model Disponibilite{
+  id String @id() @default(ulid()) @map("disponibilite_id")
+  variete_id String
+  boutique_id String
+  quantite Int
+  taille Int
+}
+
+model Boutique{
+  id String @id() @default(ulid()) @map("boutique_id")
+  reference String
+  nom String
+  adresse String
+  email String
+  telephone String
+  reseaux Json
+  horaire Json
+}
+
+model Note{
+  id String @id() @default(ulid()) @map("note_id")
+  client_id String
+  article_id String
+  note Decimal
+  commentaire String
+  estUneReponse String //la
+  // note_id String
+
+}
+
+model Favoris{
+  id String @id() @default(ulid()) @map("favoris_id")
+  client_id String
+  article_id String
+}
+
+model Type{
+  id String @id() @default(ulid()) @map("type_id")
+   reference String
+   type String
+
+}
+
+
+enum Role {
+  UTILISATEUR
+  CLIENT
+}
+enum Genre {
+    MASCULIN
+    FEMININ
+}
+enum Etat {
+  DISPONIBILITE
+  VENDU
+  PROMO
+
+}
+model utilisateur{
+  id String @id() @default(uuid()) @db.Uuid @map("utilisateur_id")
+  nomComplet String 
+  nomUtilisateur String
+  email String @unique
+  password String 
+  role Role @default(UTILISATEUR)
+  date_naissance DateTime? @db.Date
+  genre Genre
+  avatar String? 
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+}
+model client{
+  id String @id() @default( ulid()) @db.Uuid @map("client_id")
+  nom String
+  prenom String
+  nomUtilisateurClient String
+  email String @unique
+  phone String
+  password String
+  date_naissance DateTime? @db.Date
+  genre String
+  avatar String?
+  adresse String
+  role Role
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+}
+model Article{
+  id String @id @default(ulid()) @map("article_id")
+  reference String @unique
+  nom String
+  description String
+  categorie_id String
+  matière String 
+  marque String
+  etat Etat 
+  image String? 
+}
