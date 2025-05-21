@@ -1,6 +1,4 @@
 import { ConnexionDto } from './dto/connexion.dto';
-import { PrismaService } from './../database/prisma.service';
-import { HachageService } from './../hachage/hachage.service';
 import { UtilisateurService } from './../utilisateur/utilisateur.service';
 import { ClientService } from './../client/client.service';
 
@@ -8,9 +6,11 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 
 import { JwtService } from '@nestjs/jwt';
 import { InscriptionDto } from './dto/inscription.dto';
-import { jwtConstants } from 'src/authentification/constant/JWTConstants';
-import {  InscriptionClientDto } from './dto/inscriptionClient.dto';
+import { InscriptionClientDto } from './dto/inscriptionClient.dto';
 import { ConnexionDtoClient } from './dto/connexionClient.dto';
+import { HachageService } from './hachage/hachage.service';
+import { PrismaService } from 'src/database/prisma.service';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
@@ -20,7 +20,8 @@ export class AuthService {
     private readonly UtilisateurService: UtilisateurService,
     private readonly HachageService: HachageService,
     private readonly PrismaService: PrismaService,
-  ) {}
+    private readonly configService: ConfigService
+  ) { }
 
   //INSCRIPTION ET CONNEXION DE L'UTILISATEUR
   async inscription(inscriptionDto: InscriptionDto) {
@@ -41,18 +42,18 @@ export class AuthService {
       ...inscriptionDto,
       password: hachePassword
     });
-// Vérification de la structure de nouvelUtilisateur
-   
+    // Vérification de la structure de nouvelUtilisateur
+
     //après on génère le token
-   const {password,updatedAt, ...rest}=nouvelUtilisateur;
-   
-   return rest
-    
+    const { password, updatedAt, ...rest } = nouvelUtilisateur;
+
+    return rest
+
   }
 
-  async connexion(ConnexionDto:ConnexionDto){
+  async connexion(ConnexionDto: ConnexionDto) {
 
-     const utilisateurExiste = await this.UtilisateurService.findOneByEmail(
+    const utilisateurExiste = await this.UtilisateurService.findOneByEmail(
       ConnexionDto.email,
     ); // ensuite on verifie s'il existe a travers son email dans notre bd
     if (!utilisateurExiste) {
@@ -60,7 +61,7 @@ export class AuthService {
     }
     //on compare le mot de passe fourni par l'utilisateur avec le mot de passe haché stocké dans la base de données
     //on utilise le service de hachage pour comparer les mots de passe
-    const passwordHache= await this.HachageService.comparePassword(ConnexionDto.password, utilisateurExiste.password);
+    const passwordHache = await this.HachageService.comparePassword(ConnexionDto.password, utilisateurExiste.password);
     if (!passwordHache) {
       throw new BadRequestException('Mot de passe incorrect.');
     }
@@ -74,8 +75,8 @@ export class AuthService {
     };
 
     const token = await this.jwtService.signAsync(payload, {
-      secret: jwtConstants.secret,
-      expiresIn: "1h"
+      secret: this.configService.get("TOKEN_SECRET"),
+      expiresIn: this.configService.get("TOKEN_EXPIRATION")
     });
 
     const { password, updatedAt, ...rest } = utilisateurExiste;
@@ -85,7 +86,7 @@ export class AuthService {
 
   //INSCRIPTION ET CONNEXION DU CLIENT
 
-   async inscriptionClient(InscriptionClientDto: InscriptionClientDto) {
+  async inscriptionClient(InscriptionClientDto: InscriptionClientDto) {
     // A l'inscription on récupère les données du nouvel utilisateur sous forme  inscriptionDto
     const utilisateurExiste = await this.UtilisateurService.findOneByEmail(
       InscriptionClientDto.email,
@@ -103,18 +104,18 @@ export class AuthService {
       ...InscriptionClientDto,
       password: hachePassword
     });
-// Vérification de la structure de nouvelUtilisateur
-   
+    // Vérification de la structure de nouvelUtilisateur
+
     //après on génère le token
-   const {password,updatedAt, ...rest}=nouvelUtilisateur;
-   
-   return rest
-    
+    const { password, updatedAt, ...rest } = nouvelUtilisateur;
+
+    return rest
+
   }
 
-    async connexionClient(ConnexionDto:ConnexionDtoClient){
+  async connexionClient(ConnexionDto: ConnexionDtoClient) {
 
-     const utilisateurExiste = await this.UtilisateurService.findOneByEmail(
+    const utilisateurExiste = await this.UtilisateurService.findOneByEmail(
       ConnexionDto.email,
     ); // ensuite on verifie s'il existe a travers son email dans notre bd
     if (!utilisateurExiste) {
@@ -122,7 +123,7 @@ export class AuthService {
     }
     //on compare le mot de passe fourni par l'utilisateur avec le mot de passe haché stocké dans la base de données
     //on utilise le service de hachage pour comparer les mots de passe
-    const passwordHache= await this.HachageService.comparePassword(ConnexionDto.password, utilisateurExiste.password);
+    const passwordHache = await this.HachageService.comparePassword(ConnexionDto.password, utilisateurExiste.password);
     if (!passwordHache) {
       throw new BadRequestException('Mot de passe incorrect.');
     }
@@ -136,15 +137,14 @@ export class AuthService {
     };
 
     const token = await this.jwtService.signAsync(payload, {
-      secret: jwtConstants.secret,
-      expiresIn: "1h"
+      secret: this.configService.get("CLIENT_TOKEN_SECRET"),
+      expiresIn: this.configService.get("CLIENT_TOKEN_EXPIRATION")
     });
 
     const { password, updatedAt, ...rest } = utilisateurExiste;
     return { token, user: rest };
 
   }
-  
 
 
 
@@ -159,8 +159,9 @@ export class AuthService {
 
 
 
-  
-   async profile(req: Request) {
+
+
+  async profile(req: Request) {
     const { user } = req as any;
 
     return user;

@@ -8,6 +8,7 @@ export class UtilisateurService {
   constructor(private readonly prismaService: PrismaService) {}
 
   create(createUtilisateurDto: CreateUtilisateurDto) {
+
     return this.prismaService.utilisateur.create({
        data:createUtilisateurDto
     });
