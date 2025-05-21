@@ -3,7 +3,8 @@ import { HachageService } from './hachage.service';
 ;
 
 @Module({
-    imports:[],
-    providers:[HachageService]
+    imports: [],
+    providers: [HachageService],
+    exports: [HachageService]
 })
-export class HachageModule{};
+export class HachageModule { };

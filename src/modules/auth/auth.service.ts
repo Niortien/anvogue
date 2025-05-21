@@ -9,7 +9,6 @@ import { InscriptionDto } from './dto/inscription.dto';
 import { InscriptionClientDto } from './dto/inscriptionClient.dto';
 import { ConnexionDtoClient } from './dto/connexionClient.dto';
 import { HachageService } from './hachage/hachage.service';
-import { PrismaService } from 'src/database/prisma.service';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
@@ -19,16 +18,23 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly UtilisateurService: UtilisateurService,
     private readonly HachageService: HachageService,
-    private readonly PrismaService: PrismaService,
     private readonly configService: ConfigService
   ) { }
 
   //INSCRIPTION ET CONNEXION DE L'UTILISATEUR
   async inscription(inscriptionDto: InscriptionDto) {
-    // A l'inscription on récupère les données du nouvel utilisateur sous forme  inscriptionDto
-    const utilisateurExiste = await this.UtilisateurService.findOneByEmail(
+    // A l'inscription on récupère les données du nouvel utilisateur sous forme inscriptionDto
+
+    let utilisateurExiste = await this.UtilisateurService.findOneByEmail(
       inscriptionDto.email,
     ); // ensuite on verifie s'il existe a travers son email dans notre bd
+
+    if (!utilisateurExiste) {
+      utilisateurExiste = await this.UtilisateurService.findOneByNomUtilisateur(
+        inscriptionDto.nomUtilisateur,
+      ); // ensuite on verifie s'il existe a travers son nomUtilisateur dans notre bd
+    }
+
     if (utilisateurExiste) {
       throw new BadRequestException('Utilisateur existe déjà.'); // s'il existe , on renvoie ce message
     }
@@ -37,25 +43,28 @@ export class AuthService {
     const hachePassword = await this.HachageService.hachPassword(
       inscriptionDto.password,
     );
+
     // après avoir hache, on enregistre le nouvel utilisateur maintenant  tout en hachant son mot de passe
     const nouvelUtilisateur = await this.UtilisateurService.create({
       ...inscriptionDto,
       password: hachePassword
     });
-    // Vérification de la structure de nouvelUtilisateur
 
-    //après on génère le token
-    const { password, updatedAt, ...rest } = nouvelUtilisateur;
-
-    return rest
-
+    return nouvelUtilisateur
   }
 
   async connexion(ConnexionDto: ConnexionDto) {
 
-    const utilisateurExiste = await this.UtilisateurService.findOneByEmail(
+    let utilisateurExiste = await this.UtilisateurService.findOneByEmail(
       ConnexionDto.email,
     ); // ensuite on verifie s'il existe a travers son email dans notre bd
+
+    if (!utilisateurExiste) {
+      utilisateurExiste = await this.UtilisateurService.findOneByNomUtilisateur(
+        ConnexionDto.email,
+      ); // ensuite on verifie s'il existe a travers son nomUtilisateur dans notre bd
+    }
+
     if (!utilisateurExiste) {
       throw new BadRequestException("Utilisateur n'existe pas."); // s'il n'existe  pas , on renvoie ce message
     }
@@ -74,14 +83,20 @@ export class AuthService {
       email: utilisateurExiste.email
     };
 
-    const token = await this.jwtService.signAsync(payload, {
+    const accessToken = await this.jwtService.signAsync(payload, {
       secret: this.configService.get("TOKEN_SECRET"),
       expiresIn: this.configService.get("TOKEN_EXPIRATION")
     });
 
-    const { password, updatedAt, ...rest } = utilisateurExiste;
-    return { token, user: rest };
+    const refreshToken = await this.jwtService.signAsync(payload, {
+      secret: this.configService.get("REFRESH_TOKEN_SECRET"),
+      expiresIn: this.configService.get("REFRESH_TOKEN_EXPIRATION")
+    });
 
+    const { password, updatedAt, ...rest } = utilisateurExiste;
+
+
+    return { accessToken, refreshToken, user: rest };
   }
 
   //INSCRIPTION ET CONNEXION DU CLIENT
@@ -106,10 +121,7 @@ export class AuthService {
     });
     // Vérification de la structure de nouvelUtilisateur
 
-    //après on génère le token
-    const { password, updatedAt, ...rest } = nouvelUtilisateur;
-
-    return rest
+    return nouvelUtilisateur
 
   }
 

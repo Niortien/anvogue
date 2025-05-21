@@ -12,7 +12,10 @@ import { AuditModule } from './modules/audit/audit.module';
 import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [DatabaseModule, ConfigModule.forRoot(), UtilisateurModule, ClientModule, ArticleModule, HachageModule, AuthModule, OtpModule, AuditModule],
+  imports: [DatabaseModule, ConfigModule.forRoot({
+    isGlobal: true,
+    envFilePath: '.env',
+  }), UtilisateurModule, ClientModule, ArticleModule, HachageModule, AuthModule, OtpModule, AuditModule],
   controllers: [],
   providers: [],
 })

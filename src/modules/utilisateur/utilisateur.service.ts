@@ -5,13 +5,16 @@ import { PrismaService } from 'src/database/prisma.service';
 
 @Injectable()
 export class UtilisateurService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(private readonly prismaService: PrismaService) { }
 
-  create(createUtilisateurDto: CreateUtilisateurDto) {
-
-    return this.prismaService.utilisateur.create({
-       data:createUtilisateurDto
+  async create(createUtilisateurDto: CreateUtilisateurDto) {
+    const utilisateur = await this.prismaService.utilisateur.create({
+      data: createUtilisateurDto
     });
+
+    const { password, ...rest } = utilisateur;
+
+    return rest;
   }
 
   findAll() {
@@ -23,19 +26,30 @@ export class UtilisateurService {
       where: { id },
     });
   }
-   findOneByEmail(email: string) {
-      return this.prismaService.utilisateur.findUnique({
-        where: {
-          email
-        }
-      })
-    }
+  findOneByEmail(email: string) {
+    return this.prismaService.utilisateur.findUnique({
+      where: {
+        email
+      }
+    })
+  }
+  findOneByNomUtilisateur(nomUtilisateur: string) {
+    return this.prismaService.utilisateur.findUnique({
+      where: {
+        nomUtilisateur
+      }
+    })
+  }
 
-  update(id: string, updateUtilisateurDto: UpdateUtilisateurDto) {
-    return this.prismaService.utilisateur.update({
+  async update(id: string, updateUtilisateurDto: UpdateUtilisateurDto) {
+    const utilisateur = await this.prismaService.utilisateur.update({
       where: { id },
       data: updateUtilisateurDto,
     });
+
+    const { password, ...rest } = utilisateur;
+
+    return rest;
   }
 
   remove(id: string) {
