@@ -10,12 +10,13 @@ import { AuthModule } from './modules/auth/auth.module';
 import { OtpModule } from './modules/auth/otp/otp.module';
 import { AuditModule } from './modules/audit/audit.module';
 import { ConfigModule } from '@nestjs/config';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [DatabaseModule, ConfigModule.forRoot({
     isGlobal: true,
     envFilePath: '.env',
-  }), UtilisateurModule, ClientModule, ArticleModule, HachageModule, AuthModule, OtpModule, AuditModule],
+  }), UtilisateurModule, ClientModule, ArticleModule, HachageModule, AuthModule, OtpModule, AuditModule, NotificationModule],
   controllers: [],
   providers: [],
 })

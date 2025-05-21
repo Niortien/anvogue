@@ -1,6 +1,5 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { ClientService } from './client.service';
-import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
 import { ApiOperation } from '@nestjs/swagger';
 
@@ -8,11 +7,7 @@ import { ApiOperation } from '@nestjs/swagger';
 export class ClientController {
   constructor(private readonly clientService: ClientService) {}
   @ApiOperation({summary:"creation d'un client"})
-  @Post()
-  create(@Body() createClientDto: CreateClientDto) {
-    return this.clientService.create(createClientDto);
-  }
-
+ 
   @ApiOperation({summary:"Affiche tous les clients"})
   @Get()
   findAll() {

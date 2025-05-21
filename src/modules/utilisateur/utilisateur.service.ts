@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { CreateUtilisateurDto } from './dto/create-utilisateur.dto';
 import { UpdateUtilisateurDto } from './dto/update-utilisateur.dto';
 import { PrismaService } from 'src/database/prisma.service';
@@ -27,18 +27,30 @@ export class UtilisateurService {
     });
   }
   findOneByEmail(email: string) {
-    return this.prismaService.utilisateur.findUnique({
+    if (!email) {
+      throw new BadRequestException("Email est requis.");
+    }
+    const utilisateur = this.prismaService.utilisateur.findUnique({
       where: {
         email
       }
-    })
+    });
+
+    return utilisateur;
   }
+
+
   findOneByNomUtilisateur(nomUtilisateur: string) {
-    return this.prismaService.utilisateur.findUnique({
+    if (!nomUtilisateur) {
+      throw new BadRequestException("Nom d'utilisateur est requis.");
+    }
+    const utilisateur = this.prismaService.utilisateur.findUnique({
       where: {
         nomUtilisateur
       }
     })
+
+    return utilisateur;
   }
 
   async update(id: string, updateUtilisateurDto: UpdateUtilisateurDto) {

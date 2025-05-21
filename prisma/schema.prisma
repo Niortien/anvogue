@@ -107,8 +107,8 @@ model Article {
   image          String?
   quantite       Int?
   prix           Float
-  estEnPromotion Boolean
-  prixPromotion  Float
+  estEnPromotion Boolean? @default(false)
+  prixPromotion  Float? @default(0)
   // Relation avec Categorie
   categorie      Categorie @relation(fields: [categorie_id], references: [id])
   categorie_id   String    @db.Uuid

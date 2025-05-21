@@ -3,7 +3,7 @@ import { Transform } from "class-transformer";
 import { ApiProperty } from "@nestjs/swagger";
 
 
-export class ConnexionDtoClient {
+export class ConnexionClientDto {
     @ApiProperty({ type: String, description: "Email" })
     @IsEmail()
     @IsNotEmpty({ message: "Email est requis" })

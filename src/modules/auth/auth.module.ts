@@ -6,9 +6,12 @@ import { OtpModule } from 'src/modules/auth/otp/otp.module';
 import { HachageModule } from 'src/modules/auth/hachage/hachage.module';
 import { UtilisateurModule } from 'src/modules/utilisateur/utilisateur.module';
 import { ClientModule } from 'src/modules/client/client.module';
+import { UserAuthStrategy } from './strategies/userAuth.strategy';
+import { RefreshAuthStrategy } from './strategies/refresh.strategy';
+import { ClientAuthStrategy } from './strategies/clientAuth.strategy';
 @Module({
   imports: [JwtModule.register({}),HachageModule, OtpModule, UtilisateurModule, ClientModule],
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [AuthService, UserAuthStrategy, RefreshAuthStrategy, ClientAuthStrategy],
 })
 export class AuthModule { }

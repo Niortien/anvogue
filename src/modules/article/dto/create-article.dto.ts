@@ -1,5 +1,4 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { Statut } from "@prisma/client";
 import { Transform } from "class-transformer";
 import {
     IsBoolean,
@@ -12,14 +11,6 @@ import {
 } from "class-validator";
 
 export class CreateArticleDto {
-    @ApiProperty({
-        type: String,
-        description: "Référence unique de l'article"
-    })
-    @IsString()
-    @IsNotEmpty()
-    reference: string;
-
     @ApiProperty({
         type: String,
         description: "Nom de l'article"
@@ -60,16 +51,8 @@ export class CreateArticleDto {
     })
     @IsObject()
     @IsNotEmpty()
+    @Transform(({ value }) => JSON.parse(value))
     infos: Record<string, any>;
-
-    @ApiProperty({
-        type: String,
-        description: "Statut de l'article",
-        enum: Statut,
-        default: Statut.DISPONIBILITE
-    })
-    @IsNotEmpty()
-    status: Statut;
 
     @ApiProperty({
         type: String,
@@ -79,15 +62,16 @@ export class CreateArticleDto {
     @IsString()
     @IsOptional()
     @Transform(({ value }) => value?.trim())
-    image?: string;
+    image: string;
 
     @ApiProperty({
         type: Number,
         description: "Quantité de l'article"
     })
     @IsNumber()
+    @Transform(({ value }) => Number(value))
     @IsOptional()
-    quantite?: number;
+    quantite: number;
 
     @ApiProperty({
         type: Number,
@@ -95,6 +79,7 @@ export class CreateArticleDto {
     })
     @IsNumber()
     @IsNotEmpty()
+    @Transform(({ value }) => Number(value))
     prix: number;
 
     @ApiProperty({
@@ -102,14 +87,16 @@ export class CreateArticleDto {
         description: "Indique si l'article est en promotion"
     })
     @IsBoolean()
-    @IsNotEmpty()
-    estEnPromotion: boolean;
+    @IsOptional()
+    @Transform(({ value }) => Boolean(value))
+    estEnPromotion?: boolean;
 
     @ApiProperty({
         type: Number,
         description: "Prix promotionnel de l'article"
     })
     @IsNumber()
-    @IsNotEmpty()
+    @IsOptional()
+    @Transform(({ value }) => Number(value))
     prixPromotion: number;
 }

@@ -1,18 +1,11 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { UtilisateurService } from './utilisateur.service';
-import { CreateUtilisateurDto } from './dto/create-utilisateur.dto';
 import { UpdateUtilisateurDto } from './dto/update-utilisateur.dto';
 import { ApiOperation } from '@nestjs/swagger';
 
 @Controller('utilisateur')
 export class UtilisateurController {
   constructor(private readonly utilisateurService: UtilisateurService) { }
-
-  @ApiOperation({ summary: 'Creation d un utilisateur' })
-  @Post()
-  create(@Body() createUtilisateurDto: CreateUtilisateurDto) {
-    return this.utilisateurService.create(createUtilisateurDto);
-  }
 
   @ApiOperation({ summary: 'Affiche tous les utilisateurs' })
   @Get()

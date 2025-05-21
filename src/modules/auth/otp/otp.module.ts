@@ -1,10 +1,9 @@
-import { Module } from '@nestjs/common';
-import { OtpService } from './otp.service';
-import { OtpController } from './otp.controller';
+import { Module } from "@nestjs/common";
+import { OtpService } from "./otp.service";
 
 @Module({
-  controllers: [OtpController],
+  imports: [],
   providers: [OtpService],
-  exports: [OtpService]
+  exports: [OtpService],
 })
-export class OtpModule {}
+export class OtpModule { }

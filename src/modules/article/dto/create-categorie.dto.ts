@@ -5,14 +5,6 @@ import { IsEnum, IsNotEmpty, IsOptional, IsString } from "class-validator";
 export class CreateCategorieDto {
     @ApiProperty({
         type: String,
-        description: "Référence unique de la catégorie"
-    })
-    @IsString()
-    @IsNotEmpty()
-    reference: string;
-
-    @ApiProperty({
-        type: String,
         description: "Nom de la catégorie"
     })
     @IsString()

@@ -1,48 +1,81 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Genre, Role } from '@prisma/client';
+import { Genre } from '@prisma/client';
 import { Transform } from 'class-transformer';
-import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsDateString, IsEmail, IsEnum, IsNotEmpty, IsOptional, IsPhoneNumber, IsString } from 'class-validator';
 import { isValid, parse } from "date-fns";
 
 export class InscriptionClientDto {
   @ApiProperty({
     type: String,
-    description: 'Soro Guefala',
+    description: "Nom du client"
   })
-  @IsNotEmpty()
   @IsString()
-  nomComplet: string;
+  @IsNotEmpty()
+  nom: string;
 
   @ApiProperty({
     type: String,
-    description: 'SoFal',
+    description: "Prénom du client"
   })
-  @IsNotEmpty()
   @IsString()
+  @IsNotEmpty()
+  prenom: string;
+
+  @ApiProperty({
+    type: String,
+    description: "Nom d'utilisateur du client"
+  })
+  @IsString()
+  @IsNotEmpty()
   nomUtilisateur: string;
 
   @ApiProperty({
     type: String,
-    description: 'Soroguefala@gmail.com',
+    description: "Email du client"
   })
-  @IsNotEmpty()
   @IsEmail()
-  @IsString()
-  @Transform(({ value }) => value.trim()) // ce pipe elimine les espaces
+  @IsNotEmpty()
   email: string;
 
-  @ApiProperty({ type: String, description: "Password" })
+  @ApiProperty({
+    type: String,
+    description: "Numéro de téléphone du client"
+  })
+  @IsPhoneNumber()
+  @IsNotEmpty()
+  phone: string;
+
+  @ApiProperty({
+    type: String,
+    description: "Mot de passe du client"
+  })
   @IsString()
   @IsNotEmpty()
-  @Transform(({ value }) => value.trim())
   password: string;
 
-  @ApiProperty({ type: String, description: 'Admin' })
+  @ApiProperty({
+    type: String,
+    description: "Genre du client",
+    enum: Genre
+  })
+  @IsEnum(Genre)
+  @IsNotEmpty()
+  genre: Genre;
+
+  @ApiProperty({
+    type: String,
+    description: "Adresse du client"
+  })
   @IsString()
   @IsNotEmpty()
-  role: Role;
+  adresse: string;
 
-  @ApiProperty({ type: Date, description: 'Birth Date' })
+  @ApiProperty({
+    type: String,
+    format: 'date',
+    description: "Date de naissance du client"
+  })
+  @IsDateString()
   @IsOptional()
   @Transform(({ value }) => {
     const parsedDate = parse(value, 'dd/MM/yyyy', new Date());
@@ -51,16 +84,14 @@ export class InscriptionClientDto {
     }
     return value;
   })
-  date_naissance?: string; // je dois travailler encore sur la date avec une librairie
+  date_naissance?: string;
 
-  @ApiProperty({ type: String, description: 'Feminin' })
-  @IsString()
-  @IsNotEmpty()
-  genre: Genre;
-
-  @ApiProperty({ type: String, description: 'Avatar' })
+  @ApiProperty({
+    type: String,
+    description: "Avatar du client"
+  })
   @IsString()
   @IsOptional()
-  @Transform(({ value }) => value.trim())
+  @Transform(({ value }) => value?.trim())
   avatar?: string;
 }
