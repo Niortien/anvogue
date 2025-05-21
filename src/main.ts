@@ -1,8 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { env } from 'process';
-
 
 async function bootstrap() {
   // creation de l'app de base nest
@@ -18,6 +16,6 @@ const config = new DocumentBuilder()
   SwaggerModule.setup('api', app, documentFactory);
 // connexion du serveur
  
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(process.env.PORT ?? 8080);
 }
 bootstrap();
