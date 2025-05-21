@@ -10,8 +10,6 @@ import { HachageModule } from './hachage/hachage.module';
 import { AuthModule } from './auth/auth.module';
 import { BoutiqueModule } from './boutique/boutique.module';
 
-
-
 import { CategorieModule } from './categorie/categorie.module';
 
 import { OtpModule } from './otp/otp.module';
