@@ -23,10 +23,10 @@ export class AuthService {
   ) {}
 
   //INSCRIPTION ET CONNEXION DE L'UTILISATEUR
-  async inscription(InscriptionDto: InscriptionDto) {
+  async inscription(inscriptionDto: InscriptionDto) {
     // A l'inscription on récupère les données du nouvel utilisateur sous forme  inscriptionDto
     const utilisateurExiste = await this.UtilisateurService.findOneByEmail(
-      InscriptionDto.email,
+      inscriptionDto.email,
     ); // ensuite on verifie s'il existe a travers son email dans notre bd
     if (utilisateurExiste) {
       throw new BadRequestException('Utilisateur existe déjà.'); // s'il existe , on renvoie ce message
@@ -34,11 +34,11 @@ export class AuthService {
 
     //s'il n'existe pas , on hache son mot de passe à partir de la fonction que nous avon crée dans le hacheService
     const hachePassword = await this.HachageService.hachPassword(
-      InscriptionDto.password,
+      inscriptionDto.password,
     );
     // après avoir hache, on enregistre le nouvel utilisateur maintenant  tout en hachant son mot de passe
     const nouvelUtilisateur = await this.UtilisateurService.create({
-      ...InscriptionDto,
+      ...inscriptionDto,
       password: hachePassword
     });
 // Vérification de la structure de nouvelUtilisateur

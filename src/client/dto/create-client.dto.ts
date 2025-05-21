@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Role } from '@prisma/client';
 import { Transform } from 'class-transformer';
 import { IsEmail, IsEmpty, IsOptional, IsString } from 'class-validator';
 // import { isValid, parse } from "date-fns"; je dois installer date-fns
@@ -89,4 +90,12 @@ export class CreateClientDto {
   @IsString()
   @IsEmpty()
   adresse: string;
+  
+ @ApiProperty({
+    type: String,
+    description: 'cocody ',
+  })
+  @IsString()
+  @IsEmpty()
+  role:Role
 }

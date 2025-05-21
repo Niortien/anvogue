@@ -10,9 +10,9 @@ async function bootstrap() {
 // configuration de mon swagger
 const config = new DocumentBuilder()
     .setTitle('Anvogue api')
-    .setDescription('The cats API description')
+    .setDescription('The anvogue API description')
     .setVersion('1.0')
-    .addTag('cats')
+    .addTag('anvogue')
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory);

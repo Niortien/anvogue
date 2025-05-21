@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Genre, Role } from '@prisma/client';
 import { Transform } from 'class-transformer';
 import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { isValid, parse } from "date-fns";
@@ -39,7 +40,7 @@ export class InscriptionClientDto {
   @ApiProperty({ type: String, description: 'Admin' })
   @IsString()
   @IsNotEmpty()
-  role: string;
+  role: Role;
 
   @ApiProperty({ type: Date, description: 'Birth Date' })
   @IsOptional()
@@ -55,7 +56,7 @@ export class InscriptionClientDto {
   @ApiProperty({ type: String, description: 'Feminin' })
   @IsString()
   @IsNotEmpty()
-  genre: string;
+  genre: Genre;
 
   @ApiProperty({ type: String, description: 'Avatar' })
   @IsString()
