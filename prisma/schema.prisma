@@ -1,12 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
-  // output   = "../generated/prisma"
 }
 
 datasource db {
@@ -14,188 +7,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Audit {
-  id String @id() @default(uuid()) @db.Uuid @map("audit_id")
-  table String 
-  table_id String
-  message String
-  
-  // Relation avec Utilisateur
-  utilisateur    Utilisateur @relation(fields: [utilisateur_id], references: [id])
-  utilisateur_id String      @db.Uuid
-}
-
-model Type {
-  id String @id() @default(ulid()) @map("type_id")
-  reference String
-  type String
-  
-  // Relation avec Categorie
-  categories Categorie[]
-}
-
-model Categorie {
-  id String @id() @default(uuid()) @db.Uuid @map("categorie_id")
-  reference String
-  nom String
-  description String
-  
-  // Relation avec Type
-  type    Type @relation(fields: [type_id], references: [id])
-  type_id String
-  
-  // Relation avec Collection (via table de jonction)
-  collections CategorieCollection[]
-  
-  // Relation avec Article
-  articles Article[]
-}
-
-model Collection {
-  id String @id() @default(uuid()) @db.Uuid @map("collection_id")
-  reference String
-  nom String
-  description String
-  
-  // Relation avec Categorie (via table de jonction)
-  categories CategorieCollection[]
-  
-  // Relation avec Article
-  articles Article[]
-}
-
-// Table de jonction pour la relation many-to-many entre Categorie et Collection
-model CategorieCollection {
-  categorie    Categorie @relation(fields: [categorie_id], references: [id])
-  categorie_id String    @db.Uuid
-  collection   Collection @relation(fields: [collection_id], references: [id])
-  collection_id String   @db.Uuid
-  
-  @@id([categorie_id, collection_id])
-  @@map("categories_collections")
-}
-
-model Otp {
-  id String @id() @default(ulid()) @db.Uuid
-  code String
-  expire DateTime
-  email String
-  counter Int
-}
-
-model Article {
-  id String @id @default(ulid()) @map("article_id")
-  reference String @unique
-  nom String
-  description String
-  matiere String 
-  marque String
-  etat Etat
-  image String?
-  
-  // Relation avec Categorie
-  categorie    Categorie @relation(fields: [categorie_id], references: [id])
-  categorie_id String    @db.Uuid
-  
-  // Relation avec Collection
-  collection    Collection @relation(fields: [collection_id], references: [id])
-  collection_id String     @db.Uuid
-  
-  // Relation avec Variete
-  varietes Variete[]
-  
-  // Relation avec Note
-  notes Note[]
-  
-  // Relation avec Favoris
-  favoris Favoris[]
-}
-
-model Variete {
-  id String @id() @default(ulid()) @db.Uuid @map("variete_id")
-  reference String
-  couleur String
-  prix Decimal 
-  estEnPromotion Boolean
-  prixPromotion Decimal
-  image String[]
-  
-  // Relation avec Article
-  article    Article @relation(fields: [article_id], references: [id])
-  article_id String
-  
-  // Relation avec Disponibilite
-  disponibilite Disponibilite?
-}
-
-model Disponibilite {
-  id String @id() @default(ulid()) @map("disponibilite_id")
-  quantite Int
-  taille Int
-  
-  // Relation avec Variete
-  variete    Variete @relation(fields: [variete_id], references: [id])
-  variete_id String  @unique
-  
-  // Relation avec Boutique
-  boutique    Boutique @relation(fields: [boutique_id], references: [id])
-  boutique_id String   @db.Uuid
-}
-
-model Boutique {
-  id         String   @id @default(uuid()) @db.Uuid @map("boutique_id")
-  reference  String   @unique
-  nom        String
-  adresse    String
-  email      String   @unique
-  telephone  String
-  reseaux    Json
-  horaire    Json
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
-  
-  // Relation avec Utilisateur (via table de jonction)
-  utilisateurs UtilisateurBoutique[]
-  
-  // Relation avec Disponibilite
-  disponibilites Disponibilite[]
-
-  @@map("boutiques")
-}
-
-model Note {
-  id String @id() @default(ulid()) @map("note_id")
-  note Decimal
-  commentaire String
-  estUneReponse String? // Peut être null si ce n'est pas une réponse
-  
-  // Relation avec Client
-  client    Client @relation(fields: [client_id], references: [id])
-  client_id String @db.Uuid
-  
-  // Relation avec Article
-  article    Article @relation(fields: [article_id], references: [id])
-  article_id String
-}
-
-model Favoris {
-  id String @id() @default(ulid()) @map("favoris_id")
-  
-  // Relation avec Client
-  client    Client @relation(fields: [client_id], references: [id])
-  client_id String @db.Uuid
-  
-  // Relation avec Article
-  article    Article @relation(fields: [article_id], references: [id])
-  article_id String
-  
-  @@unique([client_id, article_id])
+enum Type {
+  VETEMENT
+  CHAUSSURE
+  ALIMENT
+  MONTRE
 }
 
 enum Role {
-  UTILISATEUR
-  CLIENT
   ADMIN
+  CAISSE
+  GESTIONNAIRE
+  COMPTABLE
+  LOGISTIQUE
 }
 
 enum Genre {
@@ -203,64 +27,200 @@ enum Genre {
   FEMININ
 }
 
-enum Etat {
+enum Statut {
   DISPONIBILITE
   VENDU
   PROMO
 }
 
-model Utilisateur {
-  id String @id() @default(uuid()) @db.Uuid @map("utilisateur_id")
-  nomComplet String 
-  nomUtilisateur String
-  email String @unique
-  password String 
-  role Role @default(UTILISATEUR)
-  date_naissance DateTime? @db.Date
-  genre Genre
-  avatar String? 
-  createdAt  DateTime  @default(now()) @map("created_at")
-  updatedAt  DateTime  @updatedAt @map("updated_at")
-  
-  // Relation avec Boutique (via table de jonction)
-  boutiques UtilisateurBoutique[]
-  
-  // Relation avec Audit
-  audits Audit[]
+// Action effectuée par un utilisateur
+model Audit {
+  id       String @id() @default(uuid()) @db.Uuid
+  table    String
+  table_id String
+  message  String
+
+  // Relation avec Utilisateur
+  utilisateur    Utilisateur @relation(fields: [utilisateur_id], references: [id]) // relation
+  utilisateur_id String      @db.Uuid
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("audits")
 }
 
-// Table de jonction pour la relation many-to-many entre Utilisateur et Boutique
-model UtilisateurBoutique {
-  utilisateur    Utilisateur @relation(fields: [utilisateur_id], references: [id])
-  utilisateur_id String      @db.Uuid
-  boutique       Boutique    @relation(fields: [boutique_id], references: [id])
-  boutique_id    String      @db.Uuid
-  role           String      @default("GESTIONNAIRE") // Par exemple: GESTIONNAIRE, PROPRIETAIRE, etc.
-  dateAjout      DateTime    @default(now())
+// Pour les vêtements, on a T-shirt, Pantalon, etc.
+model Categorie {
+  id          String  @id() @default(uuid()) @db.Uuid
+  reference   String  @unique
+  nom         String
+  description String? @db.Text
 
-  @@id([utilisateur_id, boutique_id])
-  @@map("utilisateurs_boutiques")
+  // Relation avec Type
+  type Type @default(VETEMENT)
+
+  // Relation avec Article
+  articles Article[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("categories")
+}
+
+model Collection {
+  id          String  @id() @default(uuid()) @db.Uuid
+  reference   String  @unique
+  nom         String
+  description String? @db.Text
+
+  // Relation avec Article
+  articles Article[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("collections")
+}
+
+model Otp {
+  id      String   @id() @default(uuid()) @db.Uuid
+  code    String
+  expire  DateTime
+  email   String
+  counter Int
+}
+
+model CounterOtp {
+  id      String @id @default(uuid()) @db.Uuid
+  counter Int    @default(0)
+}
+
+model Article {
+  id             String    @id @default(uuid()) @db.Uuid
+  reference      String    @unique
+  nom            String
+  description    String?   @db.Text
+  infos          Json      @db.Json // pour un vêtement, on a la marque, matière, etc.
+  status         Statut    @default(DISPONIBILITE)
+  image          String?
+  quantite       Int?
+  prix           Float
+  estEnPromotion Boolean? @default(false)
+  prixPromotion  Float? @default(0)
+  // Relation avec Categorie
+  categorie      Categorie @relation(fields: [categorie_id], references: [id])
+  categorie_id   String    @db.Uuid
+
+  // Relation avec Collection
+  collection    Collection? @relation(fields: [collection_id], references: [id])
+  collection_id String?     @db.Uuid
+
+  // Relation avec Varietes
+  varietes Variete[]
+
+  // Relation avec Note
+  notes Note[]
+
+  // Relation avec Favoris
+  favoris Favoris[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("articles")
+}
+
+// Pour le même article, on peut avoir plusieurs variantes par exemple pour les vêtements on a la taille et la couleur
+model Variete {
+  id        String   @id() @default(uuid()) @db.Uuid
+  reference String
+  couleur   String
+  tailles   Json     @db.Json // [{taille: "S", quantite: 10, prix: 100}, {taille: "M", quantite: 10, prix: 100}]
+  image     String[]
+
+  // Relation avec Article
+  article    Article @relation(fields: [article_id], references: [id])
+  article_id String  @db.Uuid
+
+  @@map("varietes")
+}
+
+model Note {
+  id          String  @id() @default(uuid())
+  etoile      Decimal
+  commentaire String
+  reponse     String? @db.Uuid // Peut être null si ce n'est pas une réponse
+
+  // Relation avec Client
+  client    Client @relation(fields: [client_id], references: [id])
+  client_id String @db.Uuid
+
+  // Relation avec Article
+  article    Article @relation(fields: [article_id], references: [id])
+  article_id String  @db.Uuid
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("notes")
+}
+
+model Favoris {
+  id String @id() @default(uuid())
+
+  // Relation avec Client
+  client    Client @relation(fields: [client_id], references: [id])
+  client_id String @db.Uuid
+
+  // Relation avec Article
+  article    Article @relation(fields: [article_id], references: [id])
+  article_id String  @db.Uuid
+
+  @@unique([client_id, article_id])
+  @@map("favoris")
+}
+
+model Utilisateur {
+  id             String    @id() @default(uuid()) @db.Uuid
+  nomComplet     String
+  nomUtilisateur String    @unique
+  email          String    @unique
+  password       String
+  role           Role      @default(ADMIN)
+  date_naissance DateTime? @db.Date
+  genre          Genre?
+  avatar         String?
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  // Relation avec Audit
+  audits Audit[]
+
+  @@map("utilisateurs")
 }
 
 model Client {
-  id String @id() @default(ulid()) @db.Uuid @map("client_id")
-  nom String
-  prenom String
-  nomUtilisateurClient String
-  email String @unique
-  phone String
-  password String
+  id             String    @id() @default(uuid()) @db.Uuid
+  nom            String
+  prenom         String
+  nomUtilisateur String    @unique
+  email          String    @unique
+  phone          String
+  password       String
+  genre          Genre
+  adresse        String
   date_naissance DateTime? @db.Date
-  genre String
-  adresse String
-  role Role
-  avatar String?
-  createdAt  DateTime  @default(now()) @map("created_at")
-  updatedAt  DateTime  @updatedAt @map("updated_at")
-  
+  avatar         String?
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
   // Relation avec Favoris
   favoris Favoris[]
-  
+
   // Relation avec Note
   notes Note[]
+
+  @@map("clients")
 }

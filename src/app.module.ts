@@ -1,24 +1,24 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { UtilisateurModule } from './utilisateur/utilisateur.module';
-import { ClientModule } from './client/client.module';
+import { UtilisateurModule } from './modules/utilisateur/utilisateur.module';
+import { ClientModule } from './modules/client/client.module';
 
-import { ArticleModule } from './article/article.module';
+import { ArticleModule } from './modules/article/article.module';
 import { DatabaseModule } from './database/database.module';
-import { HachageModule } from './hachage/hachage.module';
-import { AuthModule } from './auth/auth.module';
-import { BoutiqueModule } from './boutique/boutique.module';
+import { HachageModule } from './modules/auth/hachage/hachage.module';
+import { AuthModule } from './modules/auth/auth.module';
 
-import { CategorieModule } from './categorie/categorie.module';
-
-import { OtpModule } from './otp/otp.module';
-import { AuditModule } from './audit/audit.module';
+import { OtpModule } from './modules/auth/otp/otp.module';
+import { AuditModule } from './modules/audit/audit.module';
+import { ConfigModule } from '@nestjs/config';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
-  imports: [
-    UtilisateurModule, ClientModule, ArticleModule,DatabaseModule,HachageModule, AuthModule, BoutiqueModule,CategorieModule, OtpModule, AuditModule],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [DatabaseModule, ConfigModule.forRoot({
+    isGlobal: true,
+    envFilePath: '.env',
+  }), UtilisateurModule, ClientModule, ArticleModule, HachageModule, AuthModule, OtpModule, AuditModule, NotificationModule],
+  controllers: [],
+  providers: [],
 })
-export class AppModule {}
+
+export class AppModule { }
