@@ -56,6 +56,7 @@ export class InscriptionDto {
   @ApiProperty({ type: String, description: 'Feminin' })
   @IsString()
   @IsNotEmpty()
+  @IsOptional()
   genre: Genre;
 
   @ApiProperty({ type: String, description: 'Avatar' })

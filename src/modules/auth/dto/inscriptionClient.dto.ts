@@ -33,7 +33,7 @@ export class InscriptionClientDto {
     type: String,
     description: "Email du client"
   })
-  @IsEmail()
+  @IsString()
   @IsNotEmpty()
   email: string;
 

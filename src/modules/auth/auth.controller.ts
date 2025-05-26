@@ -20,7 +20,7 @@ export class AuthController {
   @ApiBadRequestResponse({ description: "Utilisateur existe déjà." })
   @ApiCreatedResponse({ description: "Utilisateur créé avec succès." })
   @Post("/inscription")
-  @UseInterceptors(FileInterceptor('image', {
+  @UseInterceptors(FileInterceptor('avatar', {
     storage: diskStorage({
       destination: './uploads/users',
       filename: (req, file, callback) => {

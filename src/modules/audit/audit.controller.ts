@@ -19,16 +19,16 @@ export class AuditController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.auditService.findOne(+id);
+    return this.auditService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateAuditDto: UpdateAuditDto) {
-    return this.auditService.update(+id, updateAuditDto);
+    return this.auditService.update(id, updateAuditDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.auditService.remove(+id);
+    return this.auditService.remove(id);
   }
 }
