@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateVarieteDto } from './dto/create-variete.dto';
-import { UpdateVarieteDto } from './dto/update-variete.dto';
+import { CreateVarieteDto } from '../dto/create-variete.dto';
+import { UpdateVarieteDto } from '../../../variete/dto/update-variete.dto';
 import { PrismaService } from 'src/database/prisma.service';
 
 @Injectable()

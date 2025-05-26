@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { VarieteService } from './variete.service';
-import { CreateVarieteDto } from './dto/create-variete.dto';
-import { UpdateVarieteDto } from './dto/update-variete.dto';
+import { VarieteService } from '../services/variete.service';
+import { CreateVarieteDto } from '../dto/create-variete.dto';
+import { UpdateVarieteDto } from '../../../variete/dto/update-variete.dto';
 
 @Controller('variete')
 export class VarieteController {

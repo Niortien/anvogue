@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { FavorisService } from './favoris.service';
-import { FavorisController } from './favoris.controller';
+import { FavorisController } from '../modules/client/controller/favoris.controller';
 
 @Module({
   controllers: [FavorisController],

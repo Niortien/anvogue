@@ -1,83 +1,46 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { Type } from "class-transformer";
 import {
-    IsArray,
-    IsNotEmpty,
-    IsNumber,
-    IsOptional,
-    IsString,
-    IsUUID,
-    ValidateNested
-} from "class-validator";
+  IsArray,
+  IsNotEmpty,
+  IsString,
+  IsUUID,
+  ValidateNested,
+  IsNumber,
+} from 'class-validator';
+import { Transform, Type } from 'class-transformer';
+import { ApiProperty } from '@nestjs/swagger';
+import { json } from 'stream/consumers';
 
-export class TailleInfo {
-    @ApiProperty({
-        type: String,
-        description: "Taille du vêtement (S, M, L, etc.)"
-    })
-    @IsString()
-    @IsNotEmpty()
-    taille: string;
 
-    @ApiProperty({
-        type: Number,
-        description: "Quantité disponible pour cette taille"
-    })
-    @IsNumber()
-    @IsNotEmpty()
-    quantite: number;
-
-    @ApiProperty({
-        type: Number,
-        description: "Prix pour cette taille"
-    })
-    @IsNumber()
-    @IsOptional()
-    prix: number;
-}
 
 export class CreateVarieteDto {
-    @ApiProperty({
-        type: String,
-        description: "Référence de la variété"
-    })
-    @IsString()
-    @IsNotEmpty()
-    reference: string;
+  @ApiProperty({ example: 'REF123', description: 'Référence de la variété' })
+  @IsString()
+  reference: string;
 
-    @ApiProperty({
-        type: String,
-        description: "Couleur de la variété"
-    })
-    @IsString()
-    @IsNotEmpty()
-    couleur: string;
+  @ApiProperty({ example: 'Rouge', description: 'Couleur de la variété' })
+  @IsString()
+  couleur: string;
 
-    @ApiProperty({
-        type: [TailleInfo],
-        description: "Liste des tailles disponibles avec leur quantité et prix"
-    })
-    @IsArray()
-    @IsNotEmpty()
-    @ValidateNested({ each: true })
-    @Type(() => TailleInfo)
-    tailles: TailleInfo[];
+  @ApiProperty({
+    type: json,
+    description: 'Liste des tailles avec quantité et prix',
+  })
+  @IsArray()
+  @ValidateNested({ each: true })
+  
+  tailles: Record<string, any>;;
 
-    @ApiProperty({
-        type: [String],
-        description: "Images de la variété"
-    })
-    @IsArray()
-    @IsString({ each: true })
-    @IsOptional()
-    image: string[];
+  @ApiProperty({
+    type: [String],
+    description: 'Liste des URL ou chemins des images',
+    example: ['image1.jpg', 'image2.jpg'],
+  })
+  @IsArray()
+  @IsString({ each: true })
+  @Transform(({ value }) => value?.map((v: string) => v.trim()))
+  image: string[];
 
-    @ApiProperty({
-        type: String,
-        description: "ID de l'article associé"
-    })
-    @IsString()
-    @IsNotEmpty()
-    @IsUUID()
-    article_id: string;
+  @ApiProperty({ example: '550e8400-e29b-41d4-a716-446655440000', description: 'ID de l\'article lié' })
+  @IsUUID()
+  article_id: string;
 }

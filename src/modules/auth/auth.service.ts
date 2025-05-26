@@ -1,6 +1,7 @@
+
 import { ConnexionDto } from './dto/connexion.dto';
 import { UtilisateurService } from './../utilisateur/utilisateur.service';
-import { ClientService } from './../client/client.service';
+
 
 import { BadRequestException, Injectable } from '@nestjs/common';
 
@@ -14,6 +15,7 @@ import { OtpService } from './otp/otp.service';
 import { NotificationService } from 'src/notification/notification.service';
 import { Request } from 'express';
 import { Utilisateur } from '@prisma/client';
+import { ClientService } from '../client/services/client.service';
 
 @Injectable()
 export class AuthService {

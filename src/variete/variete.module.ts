@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { VarieteService } from './variete.service';
-import { VarieteController } from './variete.controller';
+import { VarieteService } from '../modules/article/services/variete.service';
+import { VarieteController } from '../modules/article/controllers/variete.controller';
 
 @Module({
   controllers: [VarieteController],

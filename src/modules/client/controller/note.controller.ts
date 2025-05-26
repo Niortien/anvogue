@@ -7,9 +7,9 @@ import {
   Param,
   Delete,
 } from '@nestjs/common';
-import { NoteService } from './note.service';
-import { CreateNoteDto } from './dto/create-note.dto';
-import { UpdateNoteDto } from './dto/update-note.dto';
+
+import { CreateNoteDto } from '../../../note/dto/create-note.dto';
+import { UpdateNoteDto } from '../../../note/dto/update-note.dto';
 import {
   ApiTags,
   ApiOperation,
@@ -19,6 +19,7 @@ import {
   ApiCreatedResponse,
   ApiOkResponse,
 } from '@nestjs/swagger';
+import { NoteService } from '../services/note.service';
 
 @ApiTags('notes') // Regroupe toutes les routes dans Swagger sous "notes"
 @Controller('note')
