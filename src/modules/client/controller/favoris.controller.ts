@@ -8,8 +8,7 @@ import {
   Delete,
 } from '@nestjs/common';
 
-import { CreateFavorisDto } from '../../../favoris/dto/create-favoris.dto';
-import { UpdateFavorisDto } from '../../../favoris/dto/update-favoris.dto';
+
 import {
   ApiTags,
   ApiOperation,
@@ -20,6 +19,8 @@ import {
   ApiConflictResponse,
 } from '@nestjs/swagger';
 import { FavorisService } from '../services/favoris.service';
+import { CreateFavorisDto } from '../dto/create-favoris.dto';
+import { UpdateFavorisDto } from '../dto/update-favoris.dto';
 
 @ApiTags('favoris')
 @Controller('favoris')

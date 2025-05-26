@@ -13,6 +13,7 @@ export class ArticleService {
   }
 
   findAll() {
+    //TODO:Obtenir la liste des articles par pagination.
     return this.prismaService.article.findMany();
   }
 

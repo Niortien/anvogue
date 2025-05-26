@@ -11,9 +11,9 @@ import { OtpModule } from './modules/auth/otp/otp.module';
 import { AuditModule } from './modules/audit/audit.module';
 import { ConfigModule } from '@nestjs/config';
 import { NotificationModule } from './notification/notification.module';
-import { FavorisModule } from './favoris/favoris.module';
-import { NoteModule } from './note/note.module';
-import { VarieteModule } from './variete/variete.module';
+import { FavorisModule } from './modules/client/favoris.module';
+import { NoteModule } from './modules/client/note.module';
+import { VarieteModule } from './modules/article/variete.module';
 
 @Module({
   imports: [DatabaseModule, ConfigModule.forRoot({
