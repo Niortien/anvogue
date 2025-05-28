@@ -14,12 +14,14 @@ import { NotificationModule } from './notification/notification.module';
 import { FavorisModule } from './modules/client/favoris.module';
 import { NoteModule } from './modules/client/note.module';
 import { VarieteModule } from './modules/article/variete.module';
+import { CollectionModule } from './collection/collection.module';
+import { CommonModule } from './common/common.module';
 
 @Module({
   imports: [DatabaseModule, ConfigModule.forRoot({
     isGlobal: true,
     envFilePath: '.env',
-  }), UtilisateurModule, ClientModule, ArticleModule, HachageModule, AuthModule, OtpModule, AuditModule, NotificationModule, FavorisModule, NoteModule, VarieteModule],
+  }), CommonModule, UtilisateurModule, ClientModule, ArticleModule, HachageModule, AuthModule, OtpModule, AuditModule, NotificationModule, FavorisModule, NoteModule, VarieteModule, CollectionModule],
   controllers: [],
   providers: [],
 })

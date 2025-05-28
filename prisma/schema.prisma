@@ -39,6 +39,7 @@ model Audit {
   table    String
   table_id String
   message  String
+  ip String
 
   // Relation avec Utilisateur
   utilisateur    Utilisateur @relation(fields: [utilisateur_id], references: [id]) // relation
@@ -107,8 +108,9 @@ model Article {
   image          String?
   quantite       Int?
   prix           Float
-  estEnPromotion Boolean? @default(false)
-  prixPromotion  Float? @default(0)
+  genre          Genre     @default(MASCULIN)
+  estEnPromotion Boolean?  @default(false)
+  prixPromotion  Float?    @default(0)
   // Relation avec Categorie
   categorie      Categorie @relation(fields: [categorie_id], references: [id])
   categorie_id   String    @db.Uuid
@@ -137,8 +139,8 @@ model Variete {
   id        String   @id() @default(uuid()) @db.Uuid
   reference String
   couleur   String
-  tailles   Json     @db.Json // [{taille: "S", quantite: 10, prix: 100}, {taille: "M", quantite: 10, prix: 100}]
-  image     String[]
+  tailles   Json?    @db.Json // [{taille: "S", quantite: 10, prix: 100}, {taille: "M", quantite: 10, prix: 100}]
+  images    String[]
 
   // Relation avec Article
   article    Article @relation(fields: [article_id], references: [id])

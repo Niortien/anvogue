@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UploadedFile, UseInterceptors, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, UploadedFile, UseInterceptors, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from 'src/modules/auth/auth.service';
 import { InscriptionDto } from 'src/modules/auth/dto/inscription.dto';
 
@@ -11,6 +11,7 @@ import { InscriptionClientDto } from 'src/modules/auth/dto/inscriptionClient.dto
 import { ConnexionClientDto } from 'src/modules/auth/dto/connexionClient.dto';
 import { Request } from 'express';
 import { RefreshAuthGuard } from './guards/refreshAuth.guard';
+
 
 @Controller('auth')
 export class AuthController {

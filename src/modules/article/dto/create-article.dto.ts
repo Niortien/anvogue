@@ -1,7 +1,9 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { Genre } from "@prisma/client";
 import { Transform } from "class-transformer";
 import {
     IsBoolean,
+    IsEnum,
     IsNotEmpty,
     IsNumber,
     IsObject,
@@ -99,4 +101,13 @@ export class CreateArticleDto {
     @IsOptional()
     @Transform(({ value }) => Number(value))
     prixPromotion: number;
+
+    @ApiProperty({
+        type: String,
+        description: "Genre de l'article",
+        enum: Genre
+    })
+    @IsEnum(Genre)
+    @IsOptional()
+    genre?: Genre;
 }

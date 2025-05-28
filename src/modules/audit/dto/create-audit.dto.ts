@@ -25,13 +25,4 @@ export class CreateAuditDto {
   @IsString()
   @IsNotEmpty()
   message: string;
-
-  @ApiProperty({
-    type: String,
-    description: "ID de l'utilisateur qui a effectué l'action"
-  })
-  @IsString()
-  @IsNotEmpty()
-  @IsUUID()
-  utilisateur_id: string;
 }

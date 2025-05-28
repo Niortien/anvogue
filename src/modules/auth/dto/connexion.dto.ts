@@ -15,9 +15,9 @@ export class ConnexionDto {
     @MaxLength(15)
     @IsNotEmpty({ message: "Password est requis" })
     @Transform(({ value }) => value?.trim())
-    @Matches(/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, {
+    @Matches(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@#$!%*?&])[A-Za-z\d@#$!%*?&]{8,}$/, {
         message:
-            'Le mot de passe doit contenir au moins 8 caractères, une majuscule, un chiffre et un caractère spécial.',
+            'Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial.',
     })
     password: string;
 }

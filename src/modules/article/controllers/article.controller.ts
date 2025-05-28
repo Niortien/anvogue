@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, Query } from '@nestjs/common';
 import { ArticleService } from '../services/article.service';
 import { CreateArticleDto } from '../dto/create-article.dto';
 import { UpdateArticleDto } from '../dto/update-article.dto';
@@ -6,6 +6,7 @@ import { ApiOperation } from '@nestjs/swagger';
 import { extname } from 'path';
 import { diskStorage } from 'multer';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { QueryArticleDto } from '../dto/query-article.dto';
 
 @Controller('article')
 export class ArticleController {
@@ -34,8 +35,8 @@ export class ArticleController {
 
   @ApiOperation({ summary: "Affichage de tous les articles" })
   @Get()
-  findAll() {
-    return this.articleService.findAll();
+  findAll(@Query() query: QueryArticleDto) {
+    return this.articleService.findAll(query);
   }
 
   @Get(':id')
@@ -47,7 +48,7 @@ export class ArticleController {
 
   @UseInterceptors(FileInterceptor('image', {
     storage: diskStorage({
-      destination: './uploads',
+      destination: './uploads/articles',
       filename: (req, file, callback) => {
         const filename = `image-${Date.now()}${extname(file.originalname)}`;
         callback(null, filename);
@@ -63,7 +64,7 @@ export class ArticleController {
   @Patch(':id')
   @ApiOperation({ summary: "Mise à jour d'un article" })
   update(@Param('id') id: string, @Body() updateArticleDto: UpdateArticleDto, @UploadedFile() image: Express.Multer.File) {
-    return this.articleService.update(id, updateArticleDto);
+    return this.articleService.update(id, { ...updateArticleDto, image: image?.path });
   }
 
   @Delete(':id')

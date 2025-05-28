@@ -14,9 +14,8 @@ import { ConnexionClientDto } from './dto/connexionClient.dto';
 import { OtpService } from './otp/otp.service';
 import { NotificationService } from 'src/notification/notification.service';
 import { Request } from 'express';
-import { Utilisateur } from '@prisma/client';
 import { ClientService } from '../client/services/client.service';
-
+import { Utilisateur } from '@prisma/client';
 @Injectable()
 export class AuthService {
   constructor(
