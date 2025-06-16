@@ -1,28 +1,32 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty, IsOptional, IsString } from "class-validator";
+
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Saison } from '@prisma/client';
 
 export class CreateCollectionDto {
-    @ApiProperty({
-        type: String,
-        description: "Référence unique de la collection"
-    })
-    @IsString()
-    @IsNotEmpty()
-    reference: string;
+  
+  @ApiProperty({
+    description: "Nom de la collection",
+    example: "Été 2025",
+  })
+  @IsNotEmpty()
+  @IsString()
+  nom: string;
 
-    @ApiProperty({
-        type: String,
-        description: "Nom de la collection"
-    })
-    @IsString()
-    @IsNotEmpty()
-    nom: string;
+  @ApiPropertyOptional({
+    description: "Description de la collection",
+    example: "Une collection inspirée des tendances estivales.",
+  })
+  @IsOptional()
+  @IsString()
+  description?: string;
 
-    @ApiProperty({
-        type: String,
-        description: "Description de la collection"
-    })
-    @IsString()
-    @IsOptional()
-    description?: string;
+
+@ApiPropertyOptional({
+    description: "Description de la collection",
+    example: "ete.",
+  })
+ @IsOptional()
+  @IsString()
+  saison:Saison
 }
