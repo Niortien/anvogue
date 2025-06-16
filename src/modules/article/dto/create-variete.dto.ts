@@ -30,7 +30,7 @@ export class CreateVarieteDto {
   couleur: string;
 
   @ApiProperty({
-    type: [TailleDto],
+    type:String,
     description: 'Liste des tailles avec quantité et prix',
     example: [
       {

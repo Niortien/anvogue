@@ -7,63 +7,100 @@ import { Utilisateur } from '@prisma/client';
 
 @Injectable()
 export class AuditService {
-  constructor(private readonly prisma: PrismaService) {
+  constructor(private readonly prisma: PrismaService) {}
 
-  }
-  create(req: Request, ip: string, createAuditDto: CreateAuditDto) {
-
-    // Recuperation de l'utilisateur connecté
+  /**
+   * Crée un nouvel audit en liant l'utilisateur connecté et l'adresse IP
+   * @param req Requête HTTP (utilisée pour récupérer l'utilisateur connecté)
+   * @param ip Adresse IP du client
+   * @param createAuditDto Données pour créer l'audit
+   * @returns L'audit créé
+   * @throws BadRequestException si la création échoue
+   */
+  async create(req: Request, ip: string, createAuditDto: CreateAuditDto) {
     const user = req.user as Utilisateur;
 
-    const audit = this.prisma.audit.create({
+    const audit = await this.prisma.audit.create({
       data: {
         ...createAuditDto,
         utilisateur_id: user.id,
-        ip
-      }
+        ip,
+      },
     });
 
     if (!audit) {
-      throw new BadRequestException('Audit non cree');
+      throw new BadRequestException('Audit non créé');
     }
 
     return audit;
   }
 
-  findAll() {
-    const audit = this.prisma.audit.findMany();
+  /**
+   * Récupère tous les audits existants
+   * @returns Une liste des audits
+   * @throws BadRequestException si aucun audit n'est trouvé
+   */
+  async findAll() {
+    const audits = await this.prisma.audit.findMany();
+
+    if (!audits) {
+      throw new BadRequestException('Aucun audit trouvé');
+    }
+
+    return audits;
+  }
+
+  /**
+   * Récupère un audit spécifique par son identifiant
+   * @param id Identifiant de l'audit
+   * @returns L'audit correspondant
+   * @throws BadRequestException si l'audit n'est pas trouvé
+   */
+  async findOne(id: string) {
+    const audit = await this.prisma.audit.findUnique({
+      where: { id },
+    });
+
     if (!audit) {
-      throw new BadRequestException('Audit non trouve');
+      throw new BadRequestException('Audit non trouvé');
     }
+
     return audit;
   }
 
-  findOne(id: string) {
-    return this.prisma.audit.findUnique(
-      {
-        where: { id }
-      }
-    );
-  }
-
-  update(id: string, updateAuditDto: UpdateAuditDto) {
-    const audit = this.prisma.audit.update(
-      {
+  /**
+   * Met à jour un audit existant
+   * @param id Identifiant de l'audit à mettre à jour
+   * @param updateAuditDto Données de mise à jour
+   * @returns L'audit mis à jour
+   * @throws BadRequestException si l'audit n'est pas trouvé ou la mise à jour échoue
+   */
+  async update(id: string, updateAuditDto: UpdateAuditDto) {
+    try {
+      const audit = await this.prisma.audit.update({
         where: { id },
-        data: updateAuditDto
-      }
-    );
-    if (!audit) {
-      throw new BadRequestException('Audit non trouve');
+        data: updateAuditDto,
+      });
+      return audit;
+    } catch (error) {
+      throw new BadRequestException('Audit non trouvé ou mise à jour impossible');
     }
-    return audit;
   }
-  // je ne crois qu'on est besoin de mettre à jour un audit 
-  remove(id: string) {
-    const audit = this.prisma.audit.delete(
-      {
-        where: { id }
-      }
-    );;
+
+  /**
+   * Supprime un audit par son identifiant
+   * @param id Identifiant de l'audit à supprimer
+   * @returns L'audit supprimé
+   * @throws BadRequestException si l'audit n'est pas trouvé ou la suppression échoue
+   */
+  async remove(id: string) {
+    try {
+      const audit = await this.prisma.audit.delete({
+        where: { id },
+      });
+      return audit;
+    } catch (error) {
+      throw new BadRequestException('Audit non trouvé ou suppression impossible');
+    }
   }
 }

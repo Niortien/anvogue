@@ -6,7 +6,13 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-
+enum Saison {
+  PRINTEMPS
+  ETE
+  AUTOMNE
+  HIVER
+  TOUTES_SAISONS
+}
 enum Type {
   VETEMENT
   CHAUSSURE
@@ -57,6 +63,7 @@ model Categorie {
   reference   String  @unique
   nom         String
   description String? @db.Text
+ 
 
   // Relation avec Type
   type Type @default(VETEMENT)
@@ -75,6 +82,7 @@ model Collection {
   reference   String  @unique
   nom         String
   description String? @db.Text
+  saison      Saison
 
   // Relation avec Article
   articles Article[]
@@ -107,7 +115,7 @@ model Article {
   status         Statut    @default(DISPONIBILITE)
   image          String?
   quantite       Int?
-  prix           Float
+  prix           Float  
   genre          Genre     @default(MASCULIN)
   estEnPromotion Boolean?  @default(false)
   prixPromotion  Float?    @default(0)
@@ -215,6 +223,9 @@ model Client {
   adresse        String
   date_naissance DateTime? @db.Date
   avatar         String?
+  isActive        Boolean? @default(true)
+  totalOrders    BigInt?
+  totalSpent      BigInt?
   createdAt      DateTime  @default(now()) @map("created_at")
   updatedAt      DateTime  @updatedAt @map("updated_at")
 

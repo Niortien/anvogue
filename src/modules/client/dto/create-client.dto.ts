@@ -1,7 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Genre } from "@prisma/client";
 import { Transform } from "class-transformer";
-import { IsDateString, IsEmail, IsEnum, IsNotEmpty, IsOptional, IsPhoneNumber, IsString } from "class-validator";
+import { IsBoolean, IsDateString, IsEmail, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsPhoneNumber, IsString } from "class-validator";
 
 import { isValid, parse } from "date-fns";
 
@@ -87,12 +87,17 @@ export class CreateClientDto {
   })
   date_naissance?: string;
 
-  @ApiProperty({
-    type: String,
-    description: "Avatar du client"
+
+   @ApiProperty({
+    type: Boolean,
+  
+    description: "true"
   })
+ 
   @IsString()
   @IsOptional()
   @Transform(({ value }) => value?.trim())
   avatar?: string;
+
+  
 }

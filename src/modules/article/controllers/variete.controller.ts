@@ -16,11 +16,23 @@ import { FilesInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiConsumes,
+} from '@nestjs/swagger';
+
+@ApiTags('Variétés')
 @Controller('variete')
 export class VarieteController {
-  constructor(private readonly varieteService: VarieteService) { }
+  constructor(private readonly varieteService: VarieteService) {}
 
   @Post()
+  @ApiOperation({ summary: 'Créer une nouvelle variété' })
+  @ApiConsumes('multipart/form-data')
+  @ApiResponse({ status: 201, description: 'Variété créée avec succès.' })
+  @ApiResponse({ status: 400, description: 'Données invalides.' })
   @UseInterceptors(
     FilesInterceptor('images', 5, {
       storage: diskStorage({
@@ -32,7 +44,7 @@ export class VarieteController {
       }),
       fileFilter: (req, file, callback) => {
         if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
-          return callback(new Error('Only image files are allowed!'), false);
+          return callback(new Error('Seuls les fichiers images sont autorisés!'), false);
         }
         callback(null, true);
       },
@@ -50,14 +62,25 @@ export class VarieteController {
   }
 
   @Get()
+  @ApiOperation({ summary: 'Récupérer toutes les variétés' })
+  @ApiResponse({ status: 200, description: 'Liste des variétés.' })
   findAll() {
     return this.varieteService.findAll();
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Récupérer une variété par ID' })
+  @ApiResponse({ status: 200, description: 'Variété trouvée.' })
+  @ApiResponse({ status: 404, description: 'Variété non trouvée.' })
   findOne(@Param('id') id: string) {
     return this.varieteService.findOne(id);
   }
+
+  @Patch(':id')
+  @ApiOperation({ summary: 'Mettre à jour une variété' })
+  @ApiConsumes('multipart/form-data')
+  @ApiResponse({ status: 200, description: 'Variété mise à jour avec succès.' })
+  @ApiResponse({ status: 404, description: 'Variété non trouvée.' })
   @UseInterceptors(
     FilesInterceptor('images', 5, {
       storage: diskStorage({
@@ -69,13 +92,12 @@ export class VarieteController {
       }),
       fileFilter: (req, file, callback) => {
         if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
-          return callback(new Error('Only image files are allowed!'), false);
+          return callback(new Error('Seuls les fichiers images sont autorisés!'), false);
         }
         callback(null, true);
       },
     }),
   )
-  @Patch(':id')
   update(
     @Param('id') id: string,
     @Body() updateVarieteDto: UpdateVarieteDto,
@@ -84,11 +106,14 @@ export class VarieteController {
     const imagePaths = images?.map((img) => img.path) || [];
     return this.varieteService.update(id, {
       ...updateVarieteDto,
-      ...(images && { images: imagePaths }),
+      ...(images.length > 0 && { images: imagePaths }),
     });
   }
 
   @Delete(':id')
+  @ApiOperation({ summary: 'Supprimer une variété' })
+  @ApiResponse({ status: 200, description: 'Variété supprimée avec succès.' })
+  @ApiResponse({ status: 404, description: 'Variété non trouvée.' })
   remove(@Param('id') id: string) {
     return this.varieteService.remove(id);
   }
