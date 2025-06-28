@@ -7,11 +7,13 @@ import { extname } from 'path';
 import { diskStorage } from 'multer';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { QueryArticleDto } from '../dto/query-article.dto';
+import {ParseJsonPipe} from 'src/pipes/ParseJsonPipe';
 
 @Controller('article')
 export class ArticleController {
   constructor(private readonly articleService: ArticleService) { }
   @ApiOperation({ summary: "creation d'un article" })
+    @Post()
   @UseInterceptors(FileInterceptor('image', {
     storage: diskStorage({
       destination: './uploads/articles',
@@ -27,8 +29,10 @@ export class ArticleController {
       callback(null, true);
     }
   }))
-  @Post()
-  create(@Body() createArticleDto: CreateArticleDto, @UploadedFile() image: Express.Multer.File) {
+  
+
+
+  create(@Body(new ParseJsonPipe(['infos']))  createArticleDto: CreateArticleDto, @UploadedFile() image: Express.Multer.File) {
     return this.articleService.create({ ...createArticleDto, image: image?.path });
   }
 
@@ -63,7 +67,7 @@ export class ArticleController {
   }))
   @Patch(':id')
   @ApiOperation({ summary: "Mise à jour d'un article" })
-  update(@Param('id') id: string, @Body() updateArticleDto: UpdateArticleDto, @UploadedFile() image: Express.Multer.File) {
+  update(@Param('id') id: string, @Body(new ParseJsonPipe(['infos'])) updateArticleDto: UpdateArticleDto, @UploadedFile() image: Express.Multer.File) {
     return this.articleService.update(id, { ...updateArticleDto, image: image?.path });
   }
 

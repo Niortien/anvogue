@@ -1,7 +1,8 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Genre } from "@prisma/client";
-import { Transform } from "class-transformer";
+import { Transform, Type } from "class-transformer";
 import {
+    IsArray,
     IsBoolean,
     IsEnum,
     IsNotEmpty,
@@ -10,8 +11,22 @@ import {
     IsOptional,
     IsString,
     IsUUID,
+    ValidateNested,
 } from "class-validator";
 
+export class TailleDto {
+  @IsString()
+  @IsOptional()
+  taille?: string;
+
+  @IsNumber()
+  @IsOptional()
+  quantite?: number;
+
+  @IsNumber()
+  @IsOptional()
+  prix?: number;
+}
 export class CreateArticleDto {
     @ApiProperty({
         type: String,
@@ -47,14 +62,23 @@ export class CreateArticleDto {
     @IsOptional()
     collection_id?: string;
 
-    @ApiProperty({
-        type: Object,
-        description: "Informations supplémentaires de l'article (marque, matière, etc.)"
-    })
-    @IsObject()
-    @IsNotEmpty()
-    @Transform(({ value }) => JSON.parse(value))
-    infos: Record<string, any>;
+@ApiProperty({
+  type: [TailleDto],
+  required: false,
+  description: 'Informations sur les tailles/variantes de l\'article',
+  example: [
+    { taille: 'S', quantite: 10, prix: 120 },
+    { taille: 'M', quantite: 5, prix: 130 },
+  ],
+})
+@IsArray()
+@IsOptional()
+@ValidateNested({ each: true })
+@Type(() => TailleDto)
+infos?: TailleDto[];
+
+
+
 
     @ApiProperty({
         type: String,
