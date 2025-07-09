@@ -27,7 +27,7 @@ export class ArticleService {
   async create(createArticleDto: CreateArticleDto) {
     try {
       this.logger.debug('Creating article with data:', JSON.stringify(createArticleDto, null, 2));
-
+       
       const categorie = await this.prismaService.categorie.findUnique({
         where: { id: createArticleDto.categorie_id },
       });
@@ -64,11 +64,14 @@ export class ArticleService {
 
       const count = await this.prismaService.article.count();
       const reference = this.commonService.generateReference('ART', count + 1);
-
+      if (createArticleDto.infos && !Array.isArray(createArticleDto.infos)) {
+  throw new BadRequestException(`Le champ "infos" doit être un tableau`);
+}
       const article = await this.prismaService.article.create({
+       
         data: {
           ...createArticleDto,
-          infos: createArticleDto.infos as unknown as Prisma.InputJsonValue,
+        infos: (createArticleDto.infos ?? []) as unknown as Prisma.InputJsonValue,
           reference,
         },
         include: {

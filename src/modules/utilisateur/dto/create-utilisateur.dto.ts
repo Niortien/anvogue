@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { Genre, Role } from "@prisma/client";
+import { Genres, Role } from "@prisma/client";
 import { Transform } from "class-transformer";
 import { IsDateString, IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString } from "class-validator";
 
@@ -67,11 +67,11 @@ export class CreateUtilisateurDto {
   @ApiProperty({
     type: String,
     description: "Genre de l'utilisateur",
-    enum: Genre
+    enum: Genres
   })
-  @IsEnum(Genre)
+  @IsEnum(Genres)
   @IsOptional()
-  genre?: Genre;
+  genre?: Genres;
 
   @ApiProperty({
     type: String,

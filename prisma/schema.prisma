@@ -28,9 +28,9 @@ enum Role {
   LOGISTIQUE
 }
 
-enum Genre {
-  MASCULIN
-  FEMININ
+enum Genres {
+  HOMME
+  FEMME
 }
 
 enum Statut {
@@ -116,7 +116,7 @@ model Article {
   image          String?
   quantite       Int?
   prix           Float  
-  genre          Genre     @default(MASCULIN)
+  genre          Genres     @default(HOMME)
   estEnPromotion Boolean?  @default(false)
   prixPromotion  Float?    @default(0)
   // Relation avec Categorie
@@ -148,7 +148,7 @@ model Variete {
   reference String
   couleur   String
   tailles   Json?    @db.Json // [{taille: "S", quantite: 10, prix: 100}, {taille: "M", quantite: 10, prix: 100}]
-  images    String[]
+  image    String?
 
   // Relation avec Article
   article    Article @relation(fields: [article_id], references: [id])
@@ -200,7 +200,7 @@ model Utilisateur {
   password       String
   role           Role      @default(ADMIN)
   date_naissance DateTime? @db.Date
-  genre          Genre?
+  genre          Genres?
   avatar         String?
   createdAt      DateTime  @default(now()) @map("created_at")
   updatedAt      DateTime  @updatedAt @map("updated_at")
@@ -219,7 +219,7 @@ model Client {
   email          String    @unique
   phone          String
   password       String
-  genre          Genre
+  genre          Genres @default(HOMME)
   adresse        String
   date_naissance DateTime? @db.Date
   avatar         String?

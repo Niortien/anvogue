@@ -153,7 +153,7 @@ export class AuthService {
     // Envoie de mail de bienvenue
     await this.notificationService.sendEmail(InscriptionClientDto.email, "Bienvenue sur Anvogue", `
       <h1>Bienvenue sur Anvogue</h1>
-      <p>${client.genre === "MASCULIN" ? "Cher" : "Chère"} ${client.prenom} ${client.nom}, Vous avez bien été inscrit sur Anvogue</p>
+      <p>${client.genre === "HOMME" ? "Cher" : "Chère"} ${client.prenom} ${client.nom}, Vous avez bien été inscrit sur Anvogue</p>
       <p>Vous pouvez maintenant vous connecter</p>
       <p>Merci de votre inscription</p>
       <p>Cordialement</p>

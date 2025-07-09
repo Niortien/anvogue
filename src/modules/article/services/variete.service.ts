@@ -1,61 +1,101 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateVarieteDto } from '../dto/create-variete.dto';
 import { UpdateVarieteDto } from '../dto/update-variete.dto';
 import { PrismaService } from 'src/database/prisma.service';
 import { CommonService } from 'src/common/common.service';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class VarieteService {
+  private readonly logger = new Logger(VarieteService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly commonService: CommonService,
   ) {}
 
-  /**
-   * Crée une nouvelle variété.
-   * Génère une référence unique basée sur le nombre actuel d'enregistrements.
-   * @param createVarieteDto DTO contenant les données de la variété.
-   * @returns La variété créée.
-   */
-  async create(createVarieteDto: CreateVarieteDto) {
-    const count = await this.prisma.variete.count();
-
-    return await this.prisma.variete.create({
-      data: {
-        ...createVarieteDto,
-        reference: this.commonService.generateReference('VAR', count + 1),
-      },
-    });
+  private serializeVariete(variete: any) {
+    return {
+      ...variete,
+      tailles:
+        typeof variete.tailles === 'object'
+          ? variete.tailles
+          : (variete.tailles ? JSON.parse(variete.tailles) : []),
+    };
   }
 
-  /**
-   * Récupère toutes les variétés, avec les articles associés.
-   * Parse le champ JSON "tailles" avant de retourner.
-   * @returns Liste des variétés.
-   * @throws NotFoundException si aucune variété n'est trouvée.
-   */
+  async create(createVarieteDto: CreateVarieteDto) {
+    try {
+      this.logger.debug('Création d’une variété :', createVarieteDto);
+
+      const article = await this.prisma.article.findUnique({
+        where: { id: createVarieteDto.article_id },
+      });
+
+      if (!article) {
+        throw new BadRequestException(
+          `L'article avec l'ID ${createVarieteDto.article_id} n'existe pas.`,
+        );
+      }
+
+      if (
+        createVarieteDto.tailles &&
+        !Array.isArray(createVarieteDto.tailles)
+      ) {
+        throw new BadRequestException(
+          `Le champ "tailles" doit être un tableau.`,
+        );
+      }
+
+      const count = await this.prisma.variete.count();
+      const reference = this.commonService.generateReference('Var', count + 1);
+
+      const variete = await this.prisma.variete.create({
+        data: {
+          couleur: createVarieteDto.couleur,
+          image: createVarieteDto.image ?? '',
+          article_id: createVarieteDto.article_id,
+      tailles: createVarieteDto.tailles as unknown as Prisma.InputJsonValue,
+          reference,
+        },
+        include: {
+          article: true,
+        },
+      });
+
+      this.logger.debug(`Variété créée avec ID : ${variete.id}`);
+      return this.serializeVariete(variete);
+    } catch (error) {
+      this.logger.error('Erreur lors de la création de la variété', error);
+
+      if (error.code === 'P2003') {
+        throw new BadRequestException(
+          'Erreur de contrainte de clé étrangère : vérifie l\'article lié.',
+        );
+      }
+
+      throw error;
+    }
+  }
+
   async findAll() {
     const varietes = await this.prisma.variete.findMany({
       include: { article: true },
+     
     });
 
     if (!varietes || varietes.length === 0) {
       throw new NotFoundException('Aucune variété trouvée.');
     }
 
-    return varietes.map((variete) => ({
-      ...variete,
-      tailles: JSON.parse(variete?.tailles as string || '[]'),
-    }));
+    return varietes.map((v) => this.serializeVariete(v));
   }
 
-  /**
-   * Récupère une variété par son ID, avec l'article associé.
-   * Parse le champ JSON "tailles".
-   * @param id Identifiant de la variété.
-   * @returns La variété correspondante.
-   * @throws NotFoundException si la variété n'existe pas.
-   */
   async findOne(id: string) {
     const variete = await this.prisma.variete.findUnique({
       where: { id },
@@ -63,49 +103,71 @@ export class VarieteService {
     });
 
     if (!variete) {
-      throw new NotFoundException(`Variété avec l'id ${id} introuvable.`);
+      throw new NotFoundException(`Variété avec l'ID ${id} introuvable.`);
     }
 
-    return {
-      ...variete,
-      tailles: JSON.parse(variete?.tailles as string || '[]'),
-    };
+    return this.serializeVariete(variete);
   }
 
-  /**
-   * Met à jour une variété existante.
-   * Vérifie que la variété existe avant mise à jour.
-   * @param id Identifiant de la variété.
-   * @param updateVarieteDto Données de mise à jour.
-   * @returns La variété mise à jour.
-   */
   async update(id: string, updateVarieteDto: UpdateVarieteDto) {
-    await this.findOne(id); // Vérification d'existence
+    try {
+      const existingVariete = await this.prisma.variete.findUnique({
+        where: { id },
+      });
 
-    const variete = await this.prisma.variete.update({
-      where: { id },
-      data: {
-        ...updateVarieteDto,
-      },
-    });
+      if (!existingVariete) {
+        throw new NotFoundException(`Variété avec l'ID ${id} introuvable.`);
+      }
 
-    return {
-      ...variete,
-      tailles: JSON.parse(variete?.tailles as string || '[]'),
-    };
+      if (
+        updateVarieteDto.tailles &&
+        !Array.isArray(updateVarieteDto.tailles)
+      ) {
+        throw new BadRequestException(
+          `Le champ "tailles" doit être un tableau.`,
+        );
+      }
+
+      const updated = await this.prisma.variete.update({
+        where: { id },
+        data: {
+          ...updateVarieteDto,
+          tailles: updateVarieteDto.tailles as unknown as Prisma.InputJsonValue,
+        },
+        include: { article: true },
+      });
+
+      return this.serializeVariete(updated);
+    } catch (error) {
+      this.logger.error('Erreur lors de la mise à jour de la variété', error);
+
+      if (error.code === 'P2003') {
+        throw new BadRequestException(
+          'Erreur de contrainte de clé étrangère.',
+        );
+      }
+
+      throw error;
+    }
   }
 
-  /**
-   * Supprime une variété par son ID.
-   * Vérifie que la variété existe avant suppression.
-   * @param id Identifiant de la variété.
-   * @returns La variété supprimée.
-   */
   async remove(id: string) {
-    await this.findOne(id); // Vérification d'existence
+    try {
+      const deleted = await this.prisma.variete.delete({
+        where: { id },
+      });
 
-    return await this.prisma.variete.delete({
-      where: { id },
-    });
+      return this.serializeVariete(deleted);
+    } catch (error) {
+      this.logger.error('Erreur lors de la suppression de la variété', error);
+
+      if (error.code === 'P2025') {
+        throw new BadRequestException(
+          `Variété avec l'ID ${id} introuvable pour suppression.`,
+        );
+      }
+
+      throw error;
+    }
   }
 }

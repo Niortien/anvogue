@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Genre, Role } from '@prisma/client';
+import { Genres, Role } from '@prisma/client';
 import { Transform } from 'class-transformer';
 import { IsEmail, IsNotEmpty, IsOptional, IsString, Matches } from 'class-validator';
 import { isValid, parse } from "date-fns";
@@ -61,7 +61,7 @@ export class InscriptionDto {
   @IsString()
   @IsNotEmpty()
   @IsOptional()
-  genre: Genre;
+  genre: Genres;
 
   @ApiProperty({ type: String, description: 'Avatar' })
   @IsString()

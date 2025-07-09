@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Genre } from '@prisma/client';
+import { Genres } from '@prisma/client';
 import { Transform } from 'class-transformer';
 import { IsDateString, IsEmail, IsEnum, IsNotEmpty, IsOptional, IsPhoneNumber, IsString } from 'class-validator';
 import { isValid, parse } from "date-fns";
@@ -56,11 +56,11 @@ export class InscriptionClientDto {
   @ApiProperty({
     type: String,
     description: "Genre du client",
-    enum: Genre
+    enum: Genres
   })
-  @IsEnum(Genre)
+  @IsEnum(Genres)
   @IsNotEmpty()
-  genre: Genre;
+  genre: Genres;
 
   @ApiProperty({
     type: String,

@@ -29,25 +29,20 @@ export class CreateVarieteDto {
   @IsString()
   couleur: string;
 
-  @ApiProperty({
-    type:String,
-    description: 'Liste des tailles avec quantité et prix',
+@ApiProperty({
+    type: [TailleDto],
+    required: false,
+    description: "Informations sur les tailles/variantes de l'article",
     example: [
-      {
-        taille: 'S',
-        quantite: 10,
-        prix: 100,
-      },
-      {
-        taille: 'M',
-        quantite: 10,
-        prix: 100,
-      },
+      { taille: "S", quantite: 10, prix: 120 },
+      { taille: "M", quantite: 5, prix: 130 },
     ],
   })
+  @IsArray()
   @IsOptional()
-  @IsString()
-  tailles?: string;
+  @ValidateNested({ each: true })
+  @Type(() => TailleDto)
+  tailles?: TailleDto[];
 
 
   @ApiProperty({
@@ -56,10 +51,12 @@ export class CreateVarieteDto {
     example: ['image1.jpg', 'image2.jpg'],
   })
   @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  @Transform(({ value }) => value?.map((v: string) => v.trim()))
-  images?: string[];
+  
+  @ApiProperty({ type: String, description: "Image de l'article", required: false })
+  @IsString()
+  @IsOptional()
+  @Transform(({ value }) => (typeof value === "string" ? value.trim() : value))
+  image?: string;
 
   @ApiProperty({ example: '550e8400-e29b-41d4-a716-446655440000', description: 'ID de l\'article lié' })
   @IsUUID()
