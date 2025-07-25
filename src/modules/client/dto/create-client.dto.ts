@@ -1,7 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Genres } from "@prisma/client";
 import { Transform } from "class-transformer";
-import { IsBoolean, IsDateString, IsEmail, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsPhoneNumber, IsString } from "class-validator";
+import { IsBoolean, IsDateString, IsEmail, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsPhoneNumber, IsString, Length, Matches } from "class-validator";
 
 import { isValid, parse } from "date-fns";
 
@@ -40,11 +40,17 @@ export class CreateClientDto {
 
   @ApiProperty({
     type: String,
-    description: "Numéro de téléphone du client"
+    description: "Numéro de téléphone du client",
+    example: "+225012345678"
   })
-  @IsPhoneNumber()
+  @IsString()
   @IsNotEmpty()
+  @Length(13, 15, { message: 'Le numéro de téléphone doit contenir entre 10 et 20 caractères' })
+  @Matches(/^\+225[0-9]{8,10}$/, {
+    message: 'Le numéro doit commencer par +225 suivi de 8 à 10 chiffres',
+  })
   phone: string;
+
 
   @ApiProperty({
     type: String,

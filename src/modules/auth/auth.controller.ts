@@ -52,6 +52,7 @@ export class AuthController {
     }),
   )
   inscription(@Body() inscriptionDto: InscriptionDto, @UploadedFile() image: Express.Multer.File) {
+     console.log('inscriptionDto:', inscriptionDto);
     return this.authService.inscription({ ...inscriptionDto, avatar: image?.path });
   }
 

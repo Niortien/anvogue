@@ -1,7 +1,7 @@
 
 import { ConnexionDto } from './dto/connexion.dto';
 import { UtilisateurService } from './../utilisateur/utilisateur.service';
-
+import { Role } from '@prisma/client';
 
 import { BadRequestException, Injectable } from '@nestjs/common';
 
@@ -30,6 +30,7 @@ export class AuthService {
 
   //INSCRIPTION ET CONNEXION DE L'UTILISATEUR
   async inscription(inscriptionDto: InscriptionDto) {
+    const roleEnum: Role = Role[inscriptionDto.role as keyof typeof Role];
     // A l'inscription on récupère les données du nouvel utilisateur sous forme inscriptionDto
 
     let utilisateurExiste = await this.utilisateurService.findOneByEmail(
@@ -55,6 +56,7 @@ export class AuthService {
     const nouvelUtilisateur = await this.utilisateurService.create({
       ...inscriptionDto,
       password: hachePassword,
+      role: roleEnum,
       date_naissance: inscriptionDto.date_naissance ? new Date(inscriptionDto.date_naissance).toISOString() : undefined,
     });
 

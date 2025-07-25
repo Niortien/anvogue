@@ -16,12 +16,13 @@ import { NoteModule } from './modules/client/note.module';
 import { VarieteModule } from './modules/article/variete.module';
 import { CollectionModule } from './collection/collection.module';
 import { CommonModule } from './common/common.module';
+import { CommandeModule } from './commande/commande.module';
 
 @Module({
   imports: [DatabaseModule, ConfigModule.forRoot({
     isGlobal: true,
     envFilePath: '.env',
-  }), CommonModule, UtilisateurModule, ClientModule, ArticleModule, HachageModule, AuthModule, OtpModule, AuditModule, NotificationModule, FavorisModule, NoteModule, VarieteModule, CollectionModule],
+  }), CommonModule, UtilisateurModule, ClientModule, ArticleModule, HachageModule, AuthModule, OtpModule, AuditModule, NotificationModule, FavorisModule, NoteModule, VarieteModule, CollectionModule, CommandeModule],
   controllers: [],
   providers: [],
 })
