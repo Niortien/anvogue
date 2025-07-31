@@ -9,7 +9,13 @@ export class CommandeController {
 
   @Post()
   create(@Body() createCommandeDto: CreateCommandeDto) {
+    console.log('Payload reçu côté backend:', createCommandeDto);
     return this.commandeService.create(createCommandeDto);
+  }
+
+  @Get('client/:clientId')
+  async getCommandesByClient(@Param('clientId') clientId: string) {
+    return this.commandeService.findByClientId(clientId);
   }
 
   @Get()

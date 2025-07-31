@@ -1,9 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { CreateCommandeDto } from './dto/create-commande.dto';
 import { UpdateCommandeDto } from './dto/update-commande.dto';
 import { CommonService } from 'src/common/common.service';
 import { PrismaService } from 'src/database/prisma.service';
-import { Prisma, Commande } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 type CommandeWithRelations = Prisma.CommandeGetPayload<{
   include: {
@@ -14,6 +14,7 @@ type CommandeWithRelations = Prisma.CommandeGetPayload<{
             article: true;
           };
         };
+        article: true;
       };
     };
     client: true;
@@ -28,54 +29,84 @@ export class CommandeService {
     private readonly commonService: CommonService,
   ) {}
 
-  async create(createCommandeDto: CreateCommandeDto): Promise<Commande> {
+  async create(createCommandeDto: CreateCommandeDto): Promise<CommandeWithRelations> {
     const count = await this.prismaService.commande.count();
     const reference = this.commonService.generateReference('CMD', count + 1);
 
-    const { lignes, client_id, utilisateur_id, ...commandeData } = createCommandeDto;
+    const { lignes, clientId, utilisateurId, ...commandeData } = createCommandeDto;
 
-    // Vérifie l'existence du client
-    const client = await this.prismaService.client.findUnique({ where: { id: client_id } });
+    // Vérification clientId non défini
+    if (!clientId) {
+      throw new BadRequestException('clientId est requis et doit être un UUID valide');
+    }
+
+    // Vérifier existence client
+    const client = await this.prismaService.client.findUnique({ where: { id: clientId } });
     if (!client) throw new NotFoundException('Client introuvable');
 
-    // Vérifie l'existence de l'utilisateur si fourni
-    if (utilisateur_id) {
-      const utilisateur = await this.prismaService.utilisateur.findUnique({ where: { id: utilisateur_id } });
+    // Vérifier existence utilisateur si fourni
+    if (utilisateurId) {
+      const utilisateur = await this.prismaService.utilisateur.findUnique({ where: { id: utilisateurId } });
       if (!utilisateur) throw new NotFoundException('Utilisateur introuvable');
     }
 
-    // Vérifie que toutes les variétés référencées existent
+    // Vérifier existence des articles et variétés dans les lignes
     for (const ligne of lignes) {
       if (ligne.varieteId) {
         const variete = await this.prismaService.variete.findUnique({ where: { id: ligne.varieteId } });
         if (!variete) throw new NotFoundException(`Variété introuvable : ${ligne.varieteId}`);
       }
+      if (ligne.articleId) {
+        const article = await this.prismaService.article.findUnique({ where: { id: ligne.articleId } });
+        if (!article) throw new NotFoundException(`Article introuvable : ${ligne.articleId}`);
+      }
     }
 
+    // Création de la commande
     const commande = await this.prismaService.commande.create({
       data: {
         ...commandeData,
-        client_id,
-        utilisateur_id,
+        clientId: clientId,
+       utilisateurId: 'uuid-user',
         date: new Date(),
         reference,
         lignes: {
-          create: lignes.map((ligne) => {
-            const data: any = {
-              quantite: ligne.quantite,
-              prixUnitaire: ligne.prixUnitaire,
-              taille: ligne.taille ?? null,
-              couleur: ligne.couleur ?? null,
-            };
-            if (ligne.articleId) data.articleId = ligne.articleId;
-            if (ligne.varieteId) data.varieteId = ligne.varieteId;
-            return data;
-          }),
+          create: lignes.map((ligne) => ({
+            quantite: ligne.quantite,
+            prixUnitaire: ligne.prixUnitaire,
+            taille: ligne.taille ?? null,
+            couleur: ligne.couleur ?? null,
+            article_id: ligne.articleId ?? undefined,
+            variete_id: ligne.varieteId ?? undefined,
+          })),
         },
       },
     });
 
-    return commande;
+    // Récupérer la commande complète avec relations
+    const fullCommande = await this.prismaService.commande.findUnique({
+      where: { id: commande.id },
+      include: {
+        lignes: {
+          include: {
+            variete: {
+              include: {
+                article: true,
+              },
+            },
+            article: true,
+          },
+        },
+        client: true,
+        utilisateur: true,
+      },
+    });
+
+    if (!fullCommande) {
+      throw new NotFoundException('Commande créée introuvable');
+    }
+
+    return fullCommande;
   }
 
   async findAll(): Promise<CommandeWithRelations[]> {
@@ -88,6 +119,28 @@ export class CommandeService {
                 article: true,
               },
             },
+            article: true,
+          },
+        },
+        client: true,
+        utilisateur: true,
+      },
+      orderBy: { date: 'desc' },
+    });
+  }
+
+  async findByClientId(clientId: string): Promise<CommandeWithRelations[]> {
+    return this.prismaService.commande.findMany({
+      where: { clientId: clientId },
+      include: {
+        lignes: {
+          include: {
+            variete: {
+              include: {
+                article: true,
+              },
+            },
+            article: true,
           },
         },
         client: true,
@@ -108,6 +161,7 @@ export class CommandeService {
                 article: true,
               },
             },
+            article: true,
           },
         },
         client: true,
@@ -120,32 +174,33 @@ export class CommandeService {
     const { lignes, ...commandeData } = updateCommandeDto;
 
     return this.prismaService.$transaction(async (prisma) => {
-      // Supprime les anciennes lignes
+      // Supprimer les anciennes lignes
       await prisma.ligneCommande.deleteMany({ where: { commande_id: id } });
 
-      // Met à jour la commande
+      // Mettre à jour la commande
       await prisma.commande.update({
         where: { id },
         data: commandeData,
       });
 
-      // Recréé les lignes
+      // Créer les nouvelles lignes
       if (Array.isArray(lignes) && lignes.length > 0) {
         for (const ligne of lignes) {
-          const data: any = {
-            commande_id: id,
-            quantite: ligne.quantite,
-            prixUnitaire: ligne.prixUnitaire,
-            taille: ligne.taille ?? null,
-            couleur: ligne.couleur ?? null,
-          };
-          if (ligne.articleId) data.articleId = ligne.articleId;
-          if (ligne.varieteId) data.varieteId = ligne.varieteId;
-
-          await prisma.ligneCommande.create({ data });
+          await prisma.ligneCommande.create({
+            data: {
+              commande_id: id,
+              quantite: ligne.quantite,
+              prixUnitaire: ligne.prixUnitaire,
+              taille: ligne.taille ?? null,
+              couleur: ligne.couleur ?? null,
+              article_id: ligne.articleId ?? undefined,
+              variete_id: ligne.varieteId ?? undefined,
+            },
+          });
         }
       }
 
+      // Récupérer la commande complète mise à jour
       const fullCommande = await prisma.commande.findUnique({
         where: { id },
         include: {
@@ -156,6 +211,7 @@ export class CommandeService {
                   article: true,
                 },
               },
+              article: true,
             },
           },
           client: true,

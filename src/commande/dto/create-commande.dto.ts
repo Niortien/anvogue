@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { StatutCommande } from "@prisma/client";
-import { IsNumber, IsOptional, IsUUID, ValidateNested, IsArray, IsString, IsPositive, IsInt } from "class-validator";
+import { IsNumber, IsOptional, IsUUID, ValidateNested, IsArray, IsString, IsPositive } from "class-validator";
 import { Type } from "class-transformer";
 
 export class CreateLigneCommandeDto {
@@ -26,12 +26,12 @@ export class CreateLigneCommandeDto {
 
   @ApiPropertyOptional({ description: "ID de l'article", format: "uuid" })
   @IsOptional()
-  @IsUUID()
+ 
   articleId?: string;
 
   @ApiPropertyOptional({ description: "ID de la variété", format: "uuid" })
   @IsOptional()
-  @IsUUID()
+ 
   varieteId?: string;
 }
 
@@ -56,12 +56,12 @@ export class CreateCommandeDto {
 
   @ApiPropertyOptional({ description: 'ID de l’utilisateur (si connecté)', format: 'uuid' })
   @IsOptional()
-  @IsUUID()
-  utilisateur_id?: string;
+ 
+  utilisateurId?: string;
 
   @ApiProperty({ description: 'ID du client', format: 'uuid' })
-  @IsUUID()
-  client_id: string;
+ 
+  clientId: string;
 
   @ApiProperty({ type: [CreateLigneCommandeDto], description: 'Lignes de la commande' })
   @IsArray()
@@ -69,3 +69,4 @@ export class CreateCommandeDto {
   @Type(() => CreateLigneCommandeDto)
   lignes: CreateLigneCommandeDto[];
 }
+  

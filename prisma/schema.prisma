@@ -6,6 +6,7 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
 enum Saison {
   PRINTEMPS
   ETE
@@ -36,7 +37,7 @@ enum Genres {
 enum Statut {
   DISPONIBILITE
   VENDU
-  PROMO
+  PROMO 
 }
 enum StatutCommande {
   EN_ATTENTE
@@ -45,17 +46,16 @@ enum StatutCommande {
   ANNULEE
 }
 
-
 // Action effectuée par un utilisateur
 model Audit {
   id       String @id() @default(uuid()) @db.Uuid
   table    String
   table_id String
   message  String
-  ip String
+  ip       String
 
   // Relation avec Utilisateur
-  utilisateur    Utilisateur @relation(fields: [utilisateur_id], references: [id]) // relation
+  utilisateur    Utilisateur @relation(fields: [utilisateur_id], references: [id])
   utilisateur_id String      @db.Uuid
 
   createdAt DateTime @default(now()) @map("created_at")
@@ -70,7 +70,6 @@ model Categorie {
   reference   String  @unique
   nom         String
   description String? @db.Text
- 
 
   // Relation avec Type
   type Type @default(VETEMENT)
@@ -118,7 +117,7 @@ model Article {
   reference      String    @unique
   nom            String
   description    String?   @db.Text
-  infos          Json      @db.Json // pour un vêtement, on a la marque, matière, etc.
+  infos          Json      @db.Json
   status         Statut    @default(DISPONIBILITE)
   image          String?
   quantite       Int?
@@ -126,21 +125,19 @@ model Article {
   genre          Genres     @default(HOMME)
   estEnPromotion Boolean?  @default(false)
   prixPromotion  Float?    @default(0)
-  // Relation avec Categorie
-  categorie      Categorie @relation(fields: [categorie_id], references: [id])
-  categorie_id   String    @db.Uuid
-lignesCommande LigneCommande[]
-  // Relation avec Collection
-  collection    Collection? @relation(fields: [collection_id], references: [id])
+
+  // Relation avec Categorie (optionnelle, onDelete: SetNull)
+  categorie      Categorie? @relation(fields: [categorie_id], references: [id], onDelete: SetNull)
+  categorie_id   String?    @db.Uuid
+
+  lignesCommande LigneCommande[]
+
+  // Relation avec Collection (optionnelle, onDelete: SetNull)
+  collection    Collection? @relation(fields: [collection_id], references: [id], onDelete: SetNull)
   collection_id String?     @db.Uuid
 
-  // Relation avec Varietes
   varietes Variete[]
-
-  // Relation avec Note
   notes Note[]
-
-  // Relation avec Favoris
   favoris Favoris[]
 
   createdAt DateTime @default(now()) @map("created_at")
@@ -149,76 +146,67 @@ lignesCommande LigneCommande[]
   @@map("articles")
 }
 
-// Pour le même article, on peut avoir plusieurs variantes par exemple pour les vêtements on a la taille et la couleur
 model Variete {
   id        String   @id() @default(uuid()) @db.Uuid
   reference String
   couleur   String
-  tailles   Json?    @db.Json // [{taille: "S", quantite: 10, prix: 100}, {taille: "M", quantite: 10, prix: 100}]
-  image    String?
-  lignesCommande LigneCommande[]  // 👈 Ajout du champ relationnel inverse
+  tailles   Json?    @db.Json
+  image     String?
+  lignesCommande LigneCommande[]
 
   // Relation avec Article
- article    Article @relation(fields: [article_id], references: [id], onDelete: Cascade)
-
+  article    Article @relation(fields: [article_id], references: [id], onDelete: Cascade)
   article_id String  @db.Uuid
 
   @@map("varietes")
 }
+
 model LigneCommande {
   id            String    @id @default(uuid()) @db.Uuid
   quantite      Int
   prixUnitaire  Float
-  taille        String?   // utile pour les vêtements
+  taille        String?
   couleur       String?
 
-  // 🔗 Relation avec Article
   article_id    String?   @db.Uuid
   article       Article?  @relation(fields: [article_id], references: [id])
 
-  // 🔗 Relation avec Variete
   variete_id    String?   @db.Uuid
   variete       Variete?  @relation(fields: [variete_id], references: [id])
 
-  // 🔗 Relation avec Commande
   commande_id   String    @db.Uuid
   commande      Commande  @relation(fields: [commande_id], references: [id])
 
   @@map("lignes_commande")
 }
 
-
 model Commande {
-  id             String           @id @default(uuid()) @db.Uuid
-  date           DateTime         @default(now())
-  reference      String           @unique
-  statut         StatutCommande   @default(EN_ATTENTE)
-  total          Float
-  remise         Float? @default(0)
-  totalPaye     Float? @default(0)
-  // Relations
-  utilisateur    Utilisateur?      @relation(fields: [utilisateur_id], references: [id])
-  utilisateur_id String?           @db.Uuid
+  id           String         @id @default(uuid()) @db.Uuid
+  date         DateTime       @default(now())
+  reference    String         @unique
+  statut       StatutCommande @default(EN_ATTENTE)
+  total        Float
+  remise       Float?         @default(0)
+  totalPaye    Float?         @default(0)
 
-  client         Client           @relation(fields: [client_id], references: [id])
-  client_id      String           @db.Uuid
+  utilisateur    Utilisateur?  @relation(fields: [utilisateurId], references: [id])
+  utilisateurId  String?       @db.Uuid @map("utilisateur_id")
 
-  lignes         LigneCommande[]  // Une commande a plusieurs lignes
+  client      Client       @relation(fields: [clientId], references: [id])
+  clientId    String       @db.Uuid @map("client_id")
+
+  lignes      LigneCommande[]
 }
-
-
 
 model Note {
   id          String  @id() @default(uuid())
   etoile      Decimal
   commentaire String
-  reponse     String? @db.Uuid // Peut être null si ce n'est pas une réponse
+  reponse     String? @db.Uuid
 
-  // Relation avec Client
   client    Client @relation(fields: [client_id], references: [id])
   client_id String @db.Uuid
 
-  // Relation avec Article
   article    Article @relation(fields: [article_id], references: [id])
   article_id String  @db.Uuid
 
@@ -231,11 +219,9 @@ model Note {
 model Favoris {
   id String @id() @default(uuid())
 
-  // Relation avec Client
   client    Client @relation(fields: [client_id], references: [id])
   client_id String @db.Uuid
 
-  // Relation avec Article
   article    Article @relation(fields: [article_id], references: [id])
   article_id String  @db.Uuid
 
@@ -255,8 +241,7 @@ model Utilisateur {
   avatar         String?
   createdAt      DateTime  @default(now()) @map("created_at")
   updatedAt      DateTime  @updatedAt @map("updated_at")
- commandes Commande[]  // 👈 relation inverse obligatoire
-  // Relation avec Audit
+  commandes Commande[]
   audits Audit[]
 
   @@map("utilisateurs")
@@ -274,17 +259,14 @@ model Client {
   adresse        String
   date_naissance DateTime? @db.Date
   avatar         String?
-  isActive        Boolean? @default(true)
+  isActive       Boolean? @default(true)
   totalOrders    BigInt?
-  totalSpent      BigInt?
+  totalSpent     BigInt?
   createdAt      DateTime  @default(now()) @map("created_at")
   updatedAt      DateTime  @updatedAt @map("updated_at")
-commandes  Commande[]  // 👈 relation inverse à ajouter
-  // Relation avec Favoris
-  favoris Favoris[]
-
-  // Relation avec Note
-  notes Note[]
+  commandes      Commande[]
+  favoris        Favoris[]
+  notes          Note[]
 
   @@map("clients")
 }

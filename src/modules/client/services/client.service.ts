@@ -33,7 +33,14 @@ export class ClientService {
 
 
   findAll() {
-    return this.prismaService.client.findMany();
+    return this.prismaService.client.findMany(
+      {
+         include: {
+    commandes: true, // 
+      notes: true,
+  },
+      }
+    );
   }
 
   findOne(id: string) {
