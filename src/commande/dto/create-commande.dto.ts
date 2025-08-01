@@ -60,7 +60,7 @@ export class CreateCommandeDto {
   utilisateurId?: string;
 
   @ApiProperty({ description: 'ID du client', format: 'uuid' })
- 
+  @IsUUID()
   clientId: string;
 
   @ApiProperty({ type: [CreateLigneCommandeDto], description: 'Lignes de la commande' })

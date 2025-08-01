@@ -30,6 +30,8 @@ export class CommandeService {
   ) {}
 
   async create(createCommandeDto: CreateCommandeDto): Promise<CommandeWithRelations> {
+    console.log('DTO reçu :', createCommandeDto);
+
     const count = await this.prismaService.commande.count();
     const reference = this.commonService.generateReference('CMD', count + 1);
 
@@ -67,7 +69,7 @@ export class CommandeService {
       data: {
         ...commandeData,
         clientId: clientId,
-       utilisateurId: 'uuid-user',
+       utilisateurId: utilisateurId ?? null,
         date: new Date(),
         reference,
         lignes: {

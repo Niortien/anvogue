@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ValidationPipe, UsePipes } from '@nestjs/common';
 import { CommandeService } from './commande.service';
 import { CreateCommandeDto } from './dto/create-commande.dto';
 import { UpdateCommandeDto } from './dto/update-commande.dto';
@@ -8,6 +8,7 @@ export class CommandeController {
   constructor(private readonly commandeService: CommandeService) {}
 
   @Post()
+  @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
   create(@Body() createCommandeDto: CreateCommandeDto) {
     console.log('Payload reçu côté backend:', createCommandeDto);
     return this.commandeService.create(createCommandeDto);
