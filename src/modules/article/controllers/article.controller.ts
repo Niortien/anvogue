@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, UseGuards } from '@nestjs/common';
 import { ArticleService } from '../services/article.service';
 import { CreateArticleDto } from '../dto/create-article.dto';
 import { UpdateArticleDto } from '../dto/update-article.dto';
@@ -6,11 +6,14 @@ import { ApiOperation } from '@nestjs/swagger';
 import { extname } from 'path';
 import { diskStorage } from 'multer';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { UserAuthGuard } from 'src/modules/auth/guards/userAuth.guard';
+import { toWebPath } from 'src/common/file-path.util';
 
 @Controller('article')
 export class ArticleController {
   constructor(private readonly articleService: ArticleService) { }
   @ApiOperation({ summary: "creation d'un article" })
+  @UseGuards(UserAuthGuard)
   @UseInterceptors(FileInterceptor('image', {
     storage: diskStorage({
       destination: './uploads/articles',
@@ -28,7 +31,7 @@ export class ArticleController {
   }))
   @Post()
   create(@Body() createArticleDto: CreateArticleDto, @UploadedFile() image: Express.Multer.File) {
-    return this.articleService.create({ ...createArticleDto, image: image?.path });
+    return this.articleService.create({ ...createArticleDto, image: toWebPath(image?.path) });
   }
 
 
@@ -45,9 +48,10 @@ export class ArticleController {
   }
 
 
+  @UseGuards(UserAuthGuard)
   @UseInterceptors(FileInterceptor('image', {
     storage: diskStorage({
-      destination: './uploads',
+      destination: './uploads/articles',
       filename: (req, file, callback) => {
         const filename = `image-${Date.now()}${extname(file.originalname)}`;
         callback(null, filename);
@@ -63,9 +67,10 @@ export class ArticleController {
   @Patch(':id')
   @ApiOperation({ summary: "Mise à jour d'un article" })
   update(@Param('id') id: string, @Body() updateArticleDto: UpdateArticleDto, @UploadedFile() image: Express.Multer.File) {
-    return this.articleService.update(id, updateArticleDto);
+    return this.articleService.update(id, { ...updateArticleDto, image: image ? toWebPath(image.path) : updateArticleDto.image });
   }
 
+  @UseGuards(UserAuthGuard)
   @Delete(':id')
   @ApiOperation({ summary: "suppression d'un article à partir de son id" })
   remove(@Param('id') id: string) {

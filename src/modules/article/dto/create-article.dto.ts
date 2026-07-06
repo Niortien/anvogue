@@ -62,7 +62,7 @@ export class CreateArticleDto {
     @IsString()
     @IsOptional()
     @Transform(({ value }) => value?.trim())
-    image: string;
+    image?: string;
 
     @ApiProperty({
         type: Number,

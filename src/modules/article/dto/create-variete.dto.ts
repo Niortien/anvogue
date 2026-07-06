@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { Type } from "class-transformer";
+import { Transform, Type } from "class-transformer";
 import {
     IsArray,
     IsNotEmpty,
@@ -39,11 +39,12 @@ export class TailleInfo {
 export class CreateVarieteDto {
     @ApiProperty({
         type: String,
-        description: "Référence de la variété"
+        description: "Référence de la variété (générée automatiquement si absente)",
+        required: false,
     })
     @IsString()
-    @IsNotEmpty()
-    reference: string;
+    @IsOptional()
+    reference?: string;
 
     @ApiProperty({
         type: String,
@@ -57,10 +58,13 @@ export class CreateVarieteDto {
         type: [TailleInfo],
         description: "Liste des tailles disponibles avec leur quantité et prix"
     })
+    @Transform(({ value }) => {
+        const parsed = typeof value === 'string' ? JSON.parse(value) : value;
+        return Array.isArray(parsed) ? parsed.map((item) => Object.assign(new TailleInfo(), item)) : parsed;
+    })
     @IsArray()
     @IsNotEmpty()
     @ValidateNested({ each: true })
-    @Type(() => TailleInfo)
     tailles: TailleInfo[];
 
     @ApiProperty({

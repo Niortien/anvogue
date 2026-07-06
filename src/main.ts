@@ -30,8 +30,9 @@ async function bootstrap() {
   // connexion du serveur
 
   // Configuration du dossier de téléchargement
-  const uploadsPath = join(__dirname, '..', 'uploads');
-  console.log('Uploads directory path:', uploadsPath);
+  // (basé sur process.cwd() plutôt que __dirname : la compilation imbrique le
+  // build sous dist/src, donc __dirname ne pointe jamais vers la racine du projet)
+  const uploadsPath = join(process.cwd(), 'uploads');
   app.useStaticAssets(uploadsPath, {
     prefix: '/uploads'
   });

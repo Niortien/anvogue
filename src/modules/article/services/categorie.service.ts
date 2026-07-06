@@ -1,6 +1,7 @@
 import { PrismaService } from 'src/database/prisma.service';
 import { Injectable } from '@nestjs/common';
 import { CreateCategorieDto } from '../dto/create-categorie.dto';
+import { UpdateCategorieDto } from '../dto/update-categorie.dto';
 
 @Injectable()
 export class CategorieService {
@@ -21,6 +22,13 @@ export class CategorieService {
         where: { id }
       }
     );
+  }
+
+  update(id: string, updateCategorieDto: UpdateCategorieDto) {
+    return this.prismaService.categorie.update({
+      where: { id },
+      data: updateCategorieDto,
+    });
   }
 
   remove(id: string) {

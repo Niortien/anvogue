@@ -17,13 +17,19 @@ export class UtilisateurService {
     return rest;
   }
 
+  private readonly publicSelect = {
+    id: true, nomComplet: true, nomUtilisateur: true, email: true, role: true,
+    date_naissance: true, genre: true, avatar: true, createdAt: true, updatedAt: true,
+  };
+
   findAll() {
-    return this.prismaService.utilisateur.findMany();
+    return this.prismaService.utilisateur.findMany({ select: this.publicSelect });
   }
 
   findOne(id: string) {
     return this.prismaService.utilisateur.findUnique({
       where: { id },
+      select: this.publicSelect,
     });
   }
   findOneByEmail(email: string) {

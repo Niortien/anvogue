@@ -33,6 +33,13 @@ enum Statut {
   PROMO
 }
 
+enum StatutCommande {
+  EN_ATTENTE
+  VALIDEE
+  ANNULEE
+  LIVREE
+}
+
 // Action effectuée par un utilisateur
 model Audit {
   id       String @id() @default(uuid()) @db.Uuid
@@ -126,6 +133,9 @@ model Article {
   // Relation avec Favoris
   favoris Favoris[]
 
+  // Relation avec LigneCommande
+  lignesCommande LigneCommande[]
+
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
@@ -143,6 +153,9 @@ model Variete {
   // Relation avec Article
   article    Article @relation(fields: [article_id], references: [id])
   article_id String  @db.Uuid
+
+  // Relation avec LigneCommande
+  lignesCommande LigneCommande[]
 
   @@map("varietes")
 }
@@ -198,6 +211,9 @@ model Utilisateur {
   // Relation avec Audit
   audits Audit[]
 
+  // Relation avec Commande
+  commandes Commande[]
+
   @@map("utilisateurs")
 }
 
@@ -222,5 +238,56 @@ model Client {
   // Relation avec Note
   notes Note[]
 
+  // Relation avec Commande
+  commandes Commande[]
+
   @@map("clients")
+}
+
+model Commande {
+  id        String         @id() @default(uuid()) @db.Uuid
+  reference String         @unique
+  date      DateTime       @default(now())
+  statut    StatutCommande @default(EN_ATTENTE)
+  total     Float
+  remise    Float?         @default(0)
+  totalPaye Float?         @default(0)
+
+  // Relation avec Utilisateur (staff ayant enregistré la commande, optionnel)
+  utilisateur    Utilisateur? @relation(fields: [utilisateur_id], references: [id])
+  utilisateur_id String?      @db.Uuid
+
+  // Relation avec Client
+  client    Client @relation(fields: [client_id], references: [id])
+  client_id String @db.Uuid
+
+  // Relation avec LigneCommande
+  lignes LigneCommande[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("commandes")
+}
+
+model LigneCommande {
+  id           String  @id() @default(uuid()) @db.Uuid
+  quantite     Int
+  prixUnitaire Float
+  taille       String?
+  couleur      String?
+
+  // Relation avec Variete (optionnelle : préservée même si la variété est supprimée)
+  variete    Variete? @relation(fields: [variete_id], references: [id], onDelete: SetNull)
+  variete_id String?  @db.Uuid
+
+  // Relation avec Article (optionnelle : préservée même si l'article est supprimé)
+  article    Article? @relation(fields: [article_id], references: [id], onDelete: SetNull)
+  article_id String?  @db.Uuid
+
+  // Relation avec Commande
+  commande    Commande @relation(fields: [commande_id], references: [id], onDelete: Cascade)
+  commande_id String   @db.Uuid
+
+  @@map("lignes_commande")
 }

@@ -31,24 +31,29 @@ export class ClientService {
 
 
 
+  private readonly publicSelect = {
+    id: true, nom: true, prenom: true, nomUtilisateur: true, email: true,
+    phone: true, genre: true, adresse: true, date_naissance: true, avatar: true,
+    createdAt: true, updatedAt: true,
+  };
+
   findAll() {
-    return this.prismaService.client.findMany();
+    return this.prismaService.client.findMany({ select: this.publicSelect });
   }
 
   findOne(id: string) {
-    return this.prismaService.client.findUnique(
-      {
-        where: { id }
-      }
-
-    );
+    return this.prismaService.client.findUnique({
+      where: { id },
+      select: this.publicSelect,
+    });
   }
 
   update(id: string, updateClientDto: UpdateClientDto) {
     return this.prismaService.client.update(
       {
         where: { id },
-        data: updateClientDto
+        data: updateClientDto,
+        select: this.publicSelect,
       }
     );
   }

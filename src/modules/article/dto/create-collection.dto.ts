@@ -4,11 +4,12 @@ import { IsNotEmpty, IsOptional, IsString } from "class-validator";
 export class CreateCollectionDto {
     @ApiProperty({
         type: String,
-        description: "Référence unique de la collection"
+        description: "Référence de la collection (générée automatiquement si absente)",
+        required: false,
     })
     @IsString()
-    @IsNotEmpty()
-    reference: string;
+    @IsOptional()
+    reference?: string;
 
     @ApiProperty({
         type: String,

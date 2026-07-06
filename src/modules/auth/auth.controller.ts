@@ -11,6 +11,7 @@ import { InscriptionClientDto } from 'src/modules/auth/dto/inscriptionClient.dto
 import { ConnexionClientDto } from 'src/modules/auth/dto/connexionClient.dto';
 import { Request } from 'express';
 import { RefreshAuthGuard } from './guards/refreshAuth.guard';
+import { toWebPath } from 'src/common/file-path.util';
 
 @Controller('auth')
 export class AuthController {
@@ -36,7 +37,7 @@ export class AuthController {
     }
   }))
   inscription(@Body() inscriptionDto: InscriptionDto, @UploadedFile() image: Express.Multer.File) {
-    return this.authService.inscription({ ...inscriptionDto, avatar: image?.path });
+    return this.authService.inscription({ ...inscriptionDto, avatar: toWebPath(image?.path) });
   }
 
   @Post("/connexion")
@@ -70,7 +71,7 @@ export class AuthController {
     }
   }))
   inscriptionClient(@Body() inscriptionClientDto: InscriptionClientDto, @UploadedFile() avatar: Express.Multer.File) {
-    return this.authService.inscriptionClient({ ...inscriptionClientDto, avatar: avatar?.path });
+    return this.authService.inscriptionClient({ ...inscriptionClientDto, avatar: toWebPath(avatar?.path) });
   }
 
   @Post("/login")

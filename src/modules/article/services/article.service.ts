@@ -13,13 +13,16 @@ export class ArticleService {
   }
 
   findAll() {
-    return this.prismaService.article.findMany();
+    return this.prismaService.article.findMany({
+      include: { varietes: true, favoris: true, categorie: true, collection: true },
+    });
   }
 
   findOne(id: string) {
     return this.prismaService.article.findUnique(
       {
-        where: { id }
+        where: { id },
+        include: { varietes: true, favoris: true, notes: true, categorie: true, collection: true },
       }
     );
   }

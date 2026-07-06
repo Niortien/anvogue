@@ -3,6 +3,7 @@ import { UtilisateurModule } from './modules/utilisateur/utilisateur.module';
 import { ClientModule } from './modules/client/client.module';
 
 import { ArticleModule } from './modules/article/article.module';
+import { CommandeModule } from './modules/commande/commande.module';
 import { DatabaseModule } from './database/database.module';
 import { HachageModule } from './modules/auth/hachage/hachage.module';
 import { AuthModule } from './modules/auth/auth.module';
@@ -16,7 +17,7 @@ import { NotificationModule } from './notification/notification.module';
   imports: [DatabaseModule, ConfigModule.forRoot({
     isGlobal: true,
     envFilePath: '.env',
-  }), UtilisateurModule, ClientModule, ArticleModule, HachageModule, AuthModule, OtpModule, AuditModule, NotificationModule],
+  }), UtilisateurModule, ClientModule, ArticleModule, CommandeModule, HachageModule, AuthModule, OtpModule, AuditModule, NotificationModule],
   controllers: [],
   providers: [],
 })
